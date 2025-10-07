@@ -1,0 +1,3 @@
+[submodule "VoxelGame/SimView"]
+	path = VoxelGame/SimView
+	url = https://github.com/Calliwag/SimView.git

@@ -78,6 +78,104 @@ void Chunk::GenFaceGrids()
             }
 }
 
+void Chunk::CheckNeighborFaces(Chunk* neighbor)
+{
+    if (neighbor == nullptr)
+        return;
+    ivec3 offset = neighbor->coordinate - coordinate;
+    if (taxiLen(offset) > 1)
+        return;
+    if (offset.x != 0)
+    {
+        int thisX;
+        int otherX;
+        if(offset.x > 0)
+        {
+            thisX = yzFaces.SizeX() - 1;
+            otherX = 0;
+        }
+        else
+        {
+            thisX = 0;
+            otherX = yzFaces.SizeX() - 1;
+        }
+        for(int y = 0; y < yzFaces.SizeY(); y++)
+            for (int z = 0; z < yzFaces.SizeZ(); z++)
+            {
+                auto& thisType = yzFaces.At({ thisX,y,z });
+                if (thisType != 0)
+                {
+                    auto& otherType = neighbor->yzFaces.At({ otherX,y,z });
+                    if (otherType != 0)
+                    {
+                        thisType = 0;
+                        otherType = 0;
+                    }
+                }
+            }
+        return;
+    }
+    if (offset.y != 0)
+    {
+        int thisY;
+        int otherY;
+        if (offset.y > 0)
+        {
+            thisY = xzFaces.SizeY() - 1;
+            otherY = 0;
+        }
+        else
+        {
+            thisY = 0;
+            otherY = xzFaces.SizeY() - 1;
+        }
+        for (int x = 0; x < xzFaces.SizeX(); x++)
+            for (int z = 0; z < xzFaces.SizeZ(); z++)
+            {
+                auto& thisType = xzFaces.At({ x,thisY,z });
+                if (thisType != 0)
+                {
+                    auto& otherType = neighbor->xzFaces.At({ x,otherY,z });
+                    if (otherType != 0)
+                    {
+                        thisType = 0;
+                        otherType = 0;
+                    }
+                }
+            }
+        return;
+    }
+    if (offset.z != 0)
+    {
+        int thisZ;
+        int otherZ;
+        if (offset.z > 0)
+        {
+            thisZ = xyFaces.SizeZ() - 1;
+            otherZ = 0;
+        }
+        else
+        {
+            thisZ = 0;
+            otherZ = xyFaces.SizeZ() - 1;
+        }
+        for(int x = 0; x < xyFaces.SizeX(); x++)
+            for (int y = 0; y < xyFaces.SizeY(); y++)
+            {
+                auto& thisType = xyFaces.At({ x,y,thisZ });
+                if (thisType != 0)
+                {
+                    auto& otherType = neighbor->xyFaces.At({ x,y,otherZ });
+                    if (otherType != 0)
+                    {
+                        thisType = 0;
+                        otherType = 0;
+                    }
+                }
+            }
+    }
+}
+
 void Chunk::GenFaces()
 {
     faces = {};
@@ -177,4 +275,9 @@ void Chunk::GenChunkLevel(int level)
 u8 Chunk::GetData(ivec3 coord)
 {
     return data.At(coord);
+}
+
+int taxiLen(ivec3 vec)
+{
+    return abs(vec.x) + abs(vec.y) + abs(vec.z);
 }

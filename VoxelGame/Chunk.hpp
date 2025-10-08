@@ -81,6 +81,7 @@ public:
 	Grid<u8, CHUNK_SPAN + 1, CHUNK_SPAN, CHUNK_SPAN> yzFaces;
 	Grid<u8, CHUNK_SPAN, CHUNK_SPAN + 1, CHUNK_SPAN> xzFaces;
 	void GenFaceGrids();
+    void CheckNeighborFaces(Chunk* neighbor);
 
 	// Face lists
 	std::vector<Face> faces;
@@ -100,3 +101,4 @@ public:
 	}
 };
 
+int taxiLen(ivec3 vec);

@@ -2,14 +2,18 @@
 
 #include "Chunk.hpp"
 #include <list>
+#include <unordered_map>
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/hash.hpp"
+
 
 using std::list;
+using std::unordered_map;
 
 class ChunkManager
 {
 public:
-	list<Chunk> chunks = {};
-	list<ivec3> chunkPositions = {};
+	std::unordered_map<ivec3, Chunk> chunks = {};
 	list<ivec3> toGenerateList = {};
 
 	void UpdateList(vec3 pos, float radius);

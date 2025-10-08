@@ -35,7 +35,7 @@ int main()
         window.FillScreen(Color::Black(1.0f));
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        pos += vec3(.25, 0, 0);
+        pos += vec3(.1, 0, 0);
         //vec2 hDir = { cos(hAngle),sin(hAngle) };
         //vec3 dir = { hDir.x * cos(vAngle),hDir.y * cos(vAngle),sin(vAngle) };
         dir = -normalize(pos);
@@ -43,15 +43,15 @@ int main()
 
         for (auto& chunk : cm.chunks)
         {
-            r.DrawChunk(chunk);
+            r.DrawChunk(chunk.second);
         }
 
         window.EndFrame();
 
         if (frame % 1 == 0)
         {
-            cm.UpdateList(pos, 64);
-            cm.UnloadDistant(pos, 64);
+            cm.UpdateList(pos, 128);
+            cm.UnloadDistant(pos, 128);
             cm.GenerateOne(pos);
         }
 

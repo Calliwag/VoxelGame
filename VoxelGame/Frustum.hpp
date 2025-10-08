@@ -48,5 +48,28 @@ public:
 		}
 		return true;
 	}
+	bool CullAABB(vec3 nPoint, vec3 pPoint)
+	{
+		// Use our min max to define eight corners
+		vec3 corners[8] = {
+			{nPoint.x, nPoint.y, nPoint.z}, // x y z
+			{pPoint.x, nPoint.y, nPoint.z}, // X y z
+			{nPoint.x, pPoint.y, nPoint.z}, // x Y z
+			{pPoint.x, pPoint.y, nPoint.z}, // X Y z
+
+			{nPoint.x, nPoint.y, pPoint.z}, // x y Z
+			{pPoint.x, nPoint.y, pPoint.z}, // X y Z
+			{nPoint.x, pPoint.y, pPoint.z}, // x Y Z
+			{pPoint.x, pPoint.y, pPoint.z}, // X Y Z
+		};
+
+		for (int i = 0; i < 8; i++) {
+			if (CullPoint(corners[i] - pos))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 };
 

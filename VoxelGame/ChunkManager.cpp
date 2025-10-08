@@ -11,7 +11,7 @@ void ChunkManager::UpdateList(vec3 pos, float radius)
 			for (int z = iPos.z - iRadius; z < iPos.z + iRadius; z++)
 			{
 				ivec3 coord = { x,y,z };
-				if (std::find(chunkPositions.begin(), chunkPositions.end(), coord) == chunkPositions.end())
+				if (!chunks.contains(coord))
 				{
 					if (length((vec3)coord - iPos) < iRadius)
 					{
@@ -28,22 +28,16 @@ void ChunkManager::UnloadDistant(vec3 pos, float radius)
 	auto it = chunks.begin();
 	while (it != chunks.end())
 	{
-		ivec3 coord = it->coordinate;
+		ivec3 coord = it->first;
 		if(length((vec3)coord - iPos) > iRadius)
 		{
 			chunks.erase(it++);
-			chunkPositions.remove(coord);
 		}
 		else
 		{
 			it++;
 		}
 	}
-}
-
-int taxiLen(ivec3 vec)
-{
-	return abs(vec.x) + abs(vec.y) + abs(vec.z);
 }
 
 void ChunkManager::GenerateOne(vec3 pos)
@@ -65,8 +59,48 @@ void ChunkManager::GenerateOne(vec3 pos)
 	Chunk chunk(coord);
 	chunk.GenChunkLevel(-10);
 	chunk.GenFaceGrids();
+
+	if (chunks.contains(coord + ivec3{ 1,0,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 1,0,0 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.GenFaces();
+	}
+	if (chunks.contains(coord + ivec3{ -1,0,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ -1,0,0 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.GenFaces();
+	}
+
+	if (chunks.contains(coord + ivec3{ 0,1,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,1,0 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.GenFaces();
+	}
+	if (chunks.contains(coord + ivec3{ 0,-1,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,-1,0 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.GenFaces();
+	}
+
+	if (chunks.contains(coord + ivec3{ 0,0,1 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,0,1 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.GenFaces();
+	}
+	if (chunks.contains(coord + ivec3{ 0,0,-1 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,0,-1 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.GenFaces();
+	}
+
 	chunk.GenFaces();
-	chunks.push_back(chunk);
-	chunkPositions.push_back(coord);
+
+	chunks.insert({ coord, chunk });
 	toGenerateList.remove(coord);
 }

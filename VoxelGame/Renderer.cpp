@@ -72,6 +72,10 @@ bool Renderer::DrawChunk(Chunk& chunk)
     ivec3 chunkOffset = CHUNK_SPAN * chunk.coordinate;
     blockShader.BindVec3(chunkOffset, "offset");
 
+    if (!frustum.CullAABB(chunkOffset, chunkOffset + ivec3{ CHUNK_SPAN,CHUNK_SPAN,CHUNK_SPAN }))
+        return false;
+
+
     for (int i = 0; i < chunk.faces.size(); i++)
     {
         auto& face = chunk.faces[i];

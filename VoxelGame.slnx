@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="VoxelGame/VoxelGame.vcxproj" />
+  <Project Path="VoxelGame/VoxelGame.vcxproj" Id="5970346a-18e4-442d-bfdd-c0d4b74d8e46" />
 </Solution>

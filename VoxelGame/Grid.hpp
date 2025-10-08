@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <algorithm>
 
 using namespace glm;
 
@@ -18,6 +19,10 @@ public:
 	T& At(ivec3 pos)
 	{
 		return data[pos.x + X * pos.y + X * Y * pos.z];
+	}
+	void Fill(T value)
+	{
+		std::fill(data, data + X * Y * Z, value);
 	}
 
 	constexpr int SizeX() { return X; }

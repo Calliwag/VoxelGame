@@ -43,7 +43,6 @@ Renderer::Renderer()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     int frame = 0;
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     Grid<vec3, CHUNK_SPAN + 1, CHUNK_SPAN + 1, CHUNK_SPAN + 1> verticesGrid;
     for (int x = 0; x < CHUNK_SPAN + 1; x++)
@@ -70,96 +69,42 @@ bool Renderer::DrawChunk(Chunk& chunk)
     IArray tris(6, rTris);
 
     ivec3 size = { CHUNK_SPAN + 1, CHUNK_SPAN + 1, CHUNK_SPAN + 1 };
-    blockShader.BindVec3(CHUNK_SPAN * chunk.coordinate, "offset");
+    ivec3 chunkOffset = CHUNK_SPAN * chunk.coordinate;
+    blockShader.BindVec3(chunkOffset, "offset");
 
-    blockShader.BindColor(Color::Red(1.0f), "faceColor");
-    for (int x = 0; x < chunk.xyFaces.SizeX(); x++)
-        for (int y = 0; y < chunk.xyFaces.SizeY(); y++)
-            for (int z = 0; z < chunk.xyFaces.SizeZ(); z++)
-            {
-                ivec3 iPos = { x,y,z };
-                vec3 fPos = vec3{ x,y,z } + (float)CHUNK_SPAN * (vec3)chunk.coordinate;
-                auto& value = chunk.xyFaces.At(iPos);
-                if (value == 0)
-                    continue;
-                if (!frustum.CullPoint(fPos))
-                    continue;
-                int c0 = GetIndex(iPos + ivec3{ 0,0,0 }, size);
-                int c1 = GetIndex(iPos + ivec3{ 1,0,0 }, size);
-                int c2 = GetIndex(iPos + ivec3{ 1,1,0 }, size);
-                int c3 = GetIndex(iPos + ivec3{ 0,1,0 }, size);
-                rTris[0] = c0;
-                rTris[1] = c1;
-                rTris[2] = c2;
-                rTris[3] = c2;
-                rTris[4] = c3;
-                rTris[5] = c0;
-                tris.Set(0, 6, rTris);
+    for (int i = 0; i < chunk.faces.size(); i++)
+    {
+        auto& face = chunk.faces[i];
+        if (face.plane == XY)
+        {
+            blockShader.BindColor(Color::Red(1.0f), "faceColor");
+        }
+        if (face.plane == YZ)
+        {
+            blockShader.BindColor(Color::Green(1.0f), "faceColor");
+        }
+        if (face.plane == XZ)
+        {
+            blockShader.BindColor(Color::Blue(1.0f), "faceColor");
+        }
+        if (!frustum.CullPoint(face.verts[0] + chunkOffset) && !frustum.CullPoint(face.verts[1] + chunkOffset) && !frustum.CullPoint(face.verts[2] + chunkOffset) && !frustum.CullPoint(face.verts[3] + chunkOffset))
+            continue;
+        int c0 = GetIndex(face.verts[0], size);
+        int c1 = GetIndex(face.verts[1], size);
+        int c2 = GetIndex(face.verts[2], size);
+        int c3 = GetIndex(face.verts[3], size);
+        rTris[0] = c0;
+        rTris[1] = c1;
+        rTris[2] = c2;
+        rTris[3] = c2;
+        rTris[4] = c3;
+        rTris[5] = c0;
+        tris.Set(0, 6, rTris);
 
-                blockShader.BindIndexArray(tris);
+        blockShader.BindIndexArray(tris);
 
-                blockShader.RenderTris(2);
-                //blockShader.RenderPoints(6);
-            }
-
-    blockShader.BindColor(Color::Green(1.0f), "faceColor");
-    for (int x = 0; x < chunk.yzFaces.SizeX(); x++)
-        for (int y = 0; y < chunk.yzFaces.SizeY(); y++)
-            for (int z = 0; z < chunk.yzFaces.SizeZ(); z++)
-            {
-                ivec3 iPos = { x,y,z };
-                vec3 fPos = vec3{ x,y,z } + (float)CHUNK_SPAN * (vec3)chunk.coordinate;
-                auto& value = chunk.yzFaces.At(iPos);
-                if (value == 0)
-                    continue;
-                if (!frustum.CullPoint(fPos))
-                    continue;
-                int c0 = GetIndex(iPos + ivec3{ 0,0,0 }, size);
-                int c1 = GetIndex(iPos + ivec3{ 0,1,0 }, size);
-                int c2 = GetIndex(iPos + ivec3{ 0,1,1 }, size);
-                int c3 = GetIndex(iPos + ivec3{ 0,0,1 }, size);
-                rTris[0] = c0;
-                rTris[1] = c1;
-                rTris[2] = c2;
-                rTris[3] = c2;
-                rTris[4] = c3;
-                rTris[5] = c0;
-                tris.Set(0, 6, rTris);
-
-                blockShader.BindIndexArray(tris);
-
-                blockShader.RenderTris(2);
-                //blockShader.RenderPoints(6);
-            }
-
-    blockShader.BindColor(Color::Blue(1.0f), "faceColor");
-    for (int x = 0; x < chunk.xzFaces.SizeX(); x++)
-        for (int y = 0; y < chunk.xzFaces.SizeY(); y++)
-            for (int z = 0; z < chunk.xzFaces.SizeZ(); z++)
-            {
-                ivec3 iPos = { x,y,z };
-                vec3 fPos = vec3{ x,y,z } + (float)CHUNK_SPAN * (vec3)chunk.coordinate;
-                auto& value = chunk.xzFaces.At(iPos);
-                if (value == 0)
-                    continue;
-                if (!frustum.CullPoint(fPos))
-                    continue;
-                int c0 = GetIndex(iPos + ivec3{ 0,0,0 }, size);
-                int c1 = GetIndex(iPos + ivec3{ 1,0,0 }, size);
-                int c2 = GetIndex(iPos + ivec3{ 1,0,1 }, size);
-                int c3 = GetIndex(iPos + ivec3{ 0,0,1 }, size);
-                rTris[0] = c0;
-                rTris[1] = c1;
-                rTris[2] = c2;
-                rTris[3] = c2;
-                rTris[4] = c3;
-                rTris[5] = c0;
-                tris.Set(0, 6, rTris);
-
-                blockShader.BindIndexArray(tris);
-
-                blockShader.RenderTris(2);
-                //blockShader.RenderPoints(6);
-            }
+        blockShader.RenderTris(2);
+        //blockShader.RenderPoints(6);
+    }
     return true;
 }

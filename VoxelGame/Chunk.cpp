@@ -169,8 +169,9 @@ void Chunk::GenChunkLevel(int level)
         for (int y = 0; y < CHUNK_SPAN; y++)
             for (int x = 0; x < CHUNK_SPAN; x++)
             {
-                data.At(ivec3{ x,y,z }) = 1;
+                data.At({ x,y,z }) = 1;
             }
+    data.At({ 8,8,relLevel }) = 1;
 }
 
 u8 Chunk::GetData(ivec3 coord)

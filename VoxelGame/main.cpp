@@ -25,7 +25,7 @@ int main()
 
 
     int frame = 0;
-    vec3 pos = {-1,0,0};
+    vec3 pos = {-1,0,-8};
     vec3 dir = { 1,0,0 };
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!window.ShouldClose())

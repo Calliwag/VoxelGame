@@ -23,11 +23,13 @@ int main()
     Renderer r;
     ChunkManager cm;
 
+    float radius = 64 * 1.5;
+    float drawRadius = 64;
 
     int frame = 0;
-    vec3 pos = { 0,0,-8 };
+    vec3 pos = { 0,0,-6 };
     vec3 dir = { 1,0,0 };
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!window.ShouldClose())
     {
         window.BeginFrame();
@@ -35,23 +37,27 @@ int main()
         window.FillScreen(Color::Black(1.0f));
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        //pos += vec3(.1, 0, 0);
+        pos += vec3(.1, 0, 0);
+        dir = { cos(frame / 100.f),sin(frame / 100.f),0 };
         //vec2 hDir = { cos(hAngle),sin(hAngle) };
         //vec3 dir = { hDir.x * cos(vAngle),hDir.y * cos(vAngle),sin(vAngle) };
         //dir = -normalize(pos);
         r.Update(pos, dir, 3.1416 / 2, window.width, window.height);
 
+        vec3 iPos = pos / (float)CHUNK_SPAN;
+        float iRadius = drawRadius / (float)CHUNK_SPAN;
         for (auto& chunk : cm.chunks)
         {
-            r.DrawChunk(chunk.second);
+            if(length((vec3)chunk.second.coordinate - iPos) < iRadius)
+                r.DrawChunk(chunk.second);
         }
 
         window.EndFrame();
 
         if (frame % 1 == 0)
         {
-            cm.UpdateList(pos, 128);
-            cm.UnloadDistant(pos, 128);
+            cm.UpdateList(pos, radius);
+            cm.UnloadDistant(pos, radius);
             cm.GenerateOne(pos);
         }
 

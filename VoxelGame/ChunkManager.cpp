@@ -56,20 +56,23 @@ void ChunkManager::GenerateOne(vec3 pos)
 			minDist = dist;
 		}
 	}
+
 	Chunk chunk(coord);
-	chunk.GenChunkLevel(-10);
+	chunk.GenChunkLevel(-8);
 	chunk.GenFaceGrids();
 
 	if (chunks.contains(coord + ivec3{ 1,0,0 }))
 	{
 		auto& neighbor = chunks.at(coord + ivec3{ 1,0,0 });
 		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
 		neighbor.GenFacesSimple();
 	}
 	if (chunks.contains(coord + ivec3{ -1,0,0 }))
 	{
 		auto& neighbor = chunks.at(coord + ivec3{ -1,0,0 });
 		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
 		neighbor.GenFacesSimple();
 	}
 
@@ -77,12 +80,14 @@ void ChunkManager::GenerateOne(vec3 pos)
 	{
 		auto& neighbor = chunks.at(coord + ivec3{ 0,1,0 });
 		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
 		neighbor.GenFacesSimple();
 	}
 	if (chunks.contains(coord + ivec3{ 0,-1,0 }))
 	{
 		auto& neighbor = chunks.at(coord + ivec3{ 0,-1,0 });
 		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
 		neighbor.GenFacesSimple();
 	}
 
@@ -90,12 +95,14 @@ void ChunkManager::GenerateOne(vec3 pos)
 	{
 		auto& neighbor = chunks.at(coord + ivec3{ 0,0,1 });
 		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
 		neighbor.GenFacesSimple();
 	}
 	if (chunks.contains(coord + ivec3{ 0,0,-1 }))
 	{
 		auto& neighbor = chunks.at(coord + ivec3{ 0,0,-1 });
 		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
 		neighbor.GenFacesSimple();
 	}
 

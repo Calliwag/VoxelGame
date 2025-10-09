@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClInclude Include="Chunk.hpp" />
     <ClInclude Include="ChunkManager.hpp" />
+    <ClInclude Include="Face.hpp" />
     <ClInclude Include="Frustum.hpp" />
     <ClInclude Include="Grid.hpp" />
     <ClInclude Include="Plane.hpp" />

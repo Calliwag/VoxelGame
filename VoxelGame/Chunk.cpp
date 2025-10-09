@@ -11,7 +11,7 @@ void Chunk::GenFaceGrids()
                     continue;
 
                 { // xy Faces
-                    auto& mType = xyFaces.At({ x, y, z });
+                    auto& mType = xyFaceGrid.At({ x, y, z });
                     if (mType == 0)
                     {
                         mType = type;
@@ -21,7 +21,7 @@ void Chunk::GenFaceGrids()
                         mType = 0;
                     }
 
-                    auto& pType = xyFaces.At({ x, y, z + 1 });
+                    auto& pType = xyFaceGrid.At({ x, y, z + 1 });
                     if (pType == 0)
                     {
                         pType = type;
@@ -33,7 +33,7 @@ void Chunk::GenFaceGrids()
                 }
 
                 { // yz Faces
-                    auto& mType = yzFaces.At({ x, y, z });
+                    auto& mType = yzFaceGrid.At({ x, y, z });
                     if (mType == 0)
                     {
                         mType = type;
@@ -43,7 +43,7 @@ void Chunk::GenFaceGrids()
                         mType = 0;
                     }
 
-                    auto& pType = yzFaces.At({ x + 1, y, z });
+                    auto& pType = yzFaceGrid.At({ x + 1, y, z });
                     if (pType == 0)
                     {
                         pType = type;
@@ -55,7 +55,7 @@ void Chunk::GenFaceGrids()
                 }
 
                 { // xz Faces
-                    auto& mType = xzFaces.At({ x, y, z });
+                    auto& mType = xzFaceGrid.At({ x, y, z });
                     if (mType == 0)
                     {
                         mType = type;
@@ -65,7 +65,7 @@ void Chunk::GenFaceGrids()
                         mType = 0;
                     }
 
-                    auto& pType = xzFaces.At({ x, y + 1, z });
+                    auto& pType = xzFaceGrid.At({ x, y + 1, z });
                     if (pType == 0)
                     {
                         pType = type;
@@ -91,25 +91,24 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
         int otherX;
         if(offset.x > 0)
         {
-            thisX = yzFaces.SizeX() - 1;
+            thisX = yzFaceGrid.SizeX() - 1;
             otherX = 0;
         }
         else
         {
             thisX = 0;
-            otherX = yzFaces.SizeX() - 1;
+            otherX = data.SizeX() - 1;
         }
-        for(int y = 0; y < yzFaces.SizeY(); y++)
-            for (int z = 0; z < yzFaces.SizeZ(); z++)
+        for(int y = 0; y < yzFaceGrid.SizeY(); y++)
+            for (int z = 0; z < yzFaceGrid.SizeZ(); z++)
             {
-                auto& thisType = yzFaces.At({ thisX,y,z });
+                auto& thisType = yzFaceGrid.At({ thisX,y,z });
                 if (thisType != 0)
                 {
-                    auto& otherType = neighbor->yzFaces.At({ otherX,y,z });
+                    auto& otherType = neighbor->data.At({ otherX,y,z });
                     if (otherType != 0)
                     {
                         thisType = 0;
-                        otherType = 0;
                     }
                 }
             }
@@ -121,25 +120,24 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
         int otherY;
         if (offset.y > 0)
         {
-            thisY = xzFaces.SizeY() - 1;
+            thisY = xzFaceGrid.SizeY() - 1;
             otherY = 0;
         }
         else
         {
             thisY = 0;
-            otherY = xzFaces.SizeY() - 1;
+            otherY = data.SizeY() - 1;
         }
-        for (int x = 0; x < xzFaces.SizeX(); x++)
-            for (int z = 0; z < xzFaces.SizeZ(); z++)
+        for (int x = 0; x < xzFaceGrid.SizeX(); x++)
+            for (int z = 0; z < xzFaceGrid.SizeZ(); z++)
             {
-                auto& thisType = xzFaces.At({ x,thisY,z });
+                auto& thisType = xzFaceGrid.At({ x,thisY,z });
                 if (thisType != 0)
                 {
-                    auto& otherType = neighbor->xzFaces.At({ x,otherY,z });
+                    auto& otherType = neighbor->data.At({ x,otherY,z });
                     if (otherType != 0)
                     {
                         thisType = 0;
-                        otherType = 0;
                     }
                 }
             }
@@ -151,25 +149,24 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
         int otherZ;
         if (offset.z > 0)
         {
-            thisZ = xyFaces.SizeZ() - 1;
+            thisZ = xyFaceGrid.SizeZ() - 1;
             otherZ = 0;
         }
         else
         {
             thisZ = 0;
-            otherZ = xyFaces.SizeZ() - 1;
+            otherZ = data.SizeZ() - 1;
         }
-        for(int x = 0; x < xyFaces.SizeX(); x++)
-            for (int y = 0; y < xyFaces.SizeY(); y++)
+        for(int x = 0; x < xyFaceGrid.SizeX(); x++)
+            for (int y = 0; y < xyFaceGrid.SizeY(); y++)
             {
-                auto& thisType = xyFaces.At({ x,y,thisZ });
+                auto& thisType = xyFaceGrid.At({ x,y,thisZ });
                 if (thisType != 0)
                 {
-                    auto& otherType = neighbor->xyFaces.At({ x,y,otherZ });
+                    auto& otherType = neighbor->data.At({ x,y,otherZ });
                     if (otherType != 0)
                     {
                         thisType = 0;
-                        otherType = 0;
                     }
                 }
             }
@@ -178,14 +175,16 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
 
 void Chunk::GenFacesSimple()
 {
-    faces = {};
+    xyFaces = {};
+    yzFaces = {};
+    xzFaces = {};
     ivec3 size = { CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN };
-    for (int z = 0; z < xyFaces.SizeZ(); z++)
-        for (int x = 0; x < xyFaces.SizeX(); x++)
-            for (int y = 0; y < xyFaces.SizeY(); y++)
+    for (int z = 0; z < xyFaceGrid.SizeZ(); z++)
+        for (int x = 0; x < xyFaceGrid.SizeX(); x++)
+            for (int y = 0; y < xyFaceGrid.SizeY(); y++)
                 {
                     ivec3 iPos = { x,y,z };
-                    auto& type = xyFaces.At(iPos);
+                    auto& type = xyFaceGrid.At(iPos);
                     if (type == 0)
                         continue;
                     ivec3* verts = new ivec3[]{
@@ -194,14 +193,14 @@ void Chunk::GenFacesSimple()
                         iPos + ivec3{ 1,1,0 },
                         iPos + ivec3{ 0,1,0 }
                     };
-                    faces.emplace_back(XY, verts, type);
+                    xyFaces.emplace_back(verts, type);
                 }
-    for (int x = 0; x < yzFaces.SizeX(); x++)
-        for (int y = 0; y < yzFaces.SizeY(); y++)
-            for (int z = 0; z < yzFaces.SizeZ(); z++)
+    for (int x = 0; x < yzFaceGrid.SizeX(); x++)
+        for (int y = 0; y < yzFaceGrid.SizeY(); y++)
+            for (int z = 0; z < yzFaceGrid.SizeZ(); z++)
             {
                 ivec3 iPos = { x,y,z };
-                auto& type = yzFaces.At(iPos);
+                auto& type = yzFaceGrid.At(iPos);
                 if (type == 0)
                     continue;
                 ivec3* verts = new ivec3[]{
@@ -210,14 +209,14 @@ void Chunk::GenFacesSimple()
                     iPos + ivec3{ 0,1,1 },
                     iPos + ivec3{ 0,0,1 }
                 };
-                faces.emplace_back(YZ, verts, type);
+                yzFaces.emplace_back(verts, type);
             }
-    for (int y = 0; y < xzFaces.SizeY(); y++)
-        for (int x = 0; x < xzFaces.SizeX(); x++)
-            for (int z = 0; z < xzFaces.SizeZ(); z++)
+    for (int y = 0; y < xzFaceGrid.SizeY(); y++)
+        for (int x = 0; x < xzFaceGrid.SizeX(); x++)
+            for (int z = 0; z < xzFaceGrid.SizeZ(); z++)
             {
                 ivec3 iPos = { x,y,z };
-                auto& type = xzFaces.At(iPos);
+                auto& type = xzFaceGrid.At(iPos);
                 if (type == 0)
                     continue;
                 ivec3* verts = new ivec3[]{
@@ -226,7 +225,7 @@ void Chunk::GenFacesSimple()
                     iPos + ivec3{ 1,0,1 },
                     iPos + ivec3{ 0,0,1 }
                 };
-                faces.emplace_back(XZ, verts, type);
+                xzFaces.emplace_back(verts, type);
             }
 }
 

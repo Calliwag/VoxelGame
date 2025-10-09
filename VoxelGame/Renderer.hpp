@@ -12,6 +12,8 @@ public:
 	ShaderProgram blockShader;
 	VArray chunkVertices;
 	Frustum frustum;
+	int rTris[6];
+	IArray tris;
 
 	Renderer();
 

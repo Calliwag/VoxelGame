@@ -16,6 +16,14 @@ class Grid
 public:
 	T* data = new T[X * Y * Z]{};
 
+	Grid()
+	{
+
+	}
+	Grid(const Grid<T, X, Y, Z>& other)
+	{
+		memcpy(data, other.data, X * Y * Z * sizeof(T));
+	}
 	T& At(ivec3 pos)
 	{
 		return data[pos.x + X * pos.y + X * Y * pos.z];
@@ -23,6 +31,11 @@ public:
 	void Fill(T value)
 	{
 		std::fill(data, data + X * Y * Z, value);
+	}
+	~Grid()
+	{
+		if(data)
+			delete[] data;
 	}
 
 	constexpr int SizeX() { return X; }

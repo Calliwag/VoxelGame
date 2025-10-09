@@ -176,7 +176,7 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
     }
 }
 
-void Chunk::GenFaces()
+void Chunk::GenFacesSimple()
 {
     faces = {};
     ivec3 size = { CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN };

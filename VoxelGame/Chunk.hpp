@@ -85,7 +85,7 @@ public:
 
 	// Face lists
 	std::vector<Face> faces;
-	void GenFaces();
+	void GenFacesSimple();
 
 public:
 	Chunk(ivec3 coordinate);

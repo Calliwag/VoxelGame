@@ -25,9 +25,9 @@ int main()
 
 
     int frame = 0;
-    vec3 pos = {-1,0,-8};
+    vec3 pos = { 0,0,-8 };
     vec3 dir = { 1,0,0 };
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!window.ShouldClose())
     {
         window.BeginFrame();
@@ -35,10 +35,10 @@ int main()
         window.FillScreen(Color::Black(1.0f));
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        pos += vec3(.1, 0, 0);
+        //pos += vec3(.1, 0, 0);
         //vec2 hDir = { cos(hAngle),sin(hAngle) };
         //vec3 dir = { hDir.x * cos(vAngle),hDir.y * cos(vAngle),sin(vAngle) };
-        dir = -normalize(pos);
+        //dir = -normalize(pos);
         r.Update(pos, dir, 3.1416 / 2, window.width, window.height);
 
         for (auto& chunk : cm.chunks)

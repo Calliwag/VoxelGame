@@ -71,6 +71,13 @@ bool Renderer::DrawChunk(Chunk& chunk)
     ivec3 size = { CHUNK_SPAN + 1, CHUNK_SPAN + 1, CHUNK_SPAN + 1 };
     ivec3 chunkOffset = CHUNK_SPAN * chunk.coordinate;
     blockShader.BindVec3(chunkOffset, "offset");
+    Grid<bool, CHUNK_SPAN + 1, CHUNK_SPAN + 1, CHUNK_SPAN + 1> culledPoints;
+    for(int x = 0; x < CHUNK_SPAN + 1; x++)
+        for(int y = 0; y < CHUNK_SPAN + 1; y++)
+            for (int z = 0; z < CHUNK_SPAN + 1; z++)
+            {
+                culledPoints.At({ x,y,z }) = frustum.CullPoint(ivec3{ x,y,z } + chunkOffset);
+            }
 
     if (!frustum.CullAABB(chunkOffset, chunkOffset + ivec3{ CHUNK_SPAN,CHUNK_SPAN,CHUNK_SPAN }))
         return false;
@@ -91,7 +98,7 @@ bool Renderer::DrawChunk(Chunk& chunk)
         {
             blockShader.BindColor(Color::Blue(1.0f), "faceColor");
         }
-        if (!frustum.CullPoint(face.verts[0] + chunkOffset) && !frustum.CullPoint(face.verts[1] + chunkOffset) && !frustum.CullPoint(face.verts[2] + chunkOffset) && !frustum.CullPoint(face.verts[3] + chunkOffset))
+        if (!culledPoints.At(face.verts[0]) && !culledPoints.At(face.verts[1]) && !culledPoints.At(face.verts[2]) && !culledPoints.At(face.verts[3]))
             continue;
         int c0 = GetIndex(face.verts[0], size);
         int c1 = GetIndex(face.verts[1], size);

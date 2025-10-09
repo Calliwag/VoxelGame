@@ -8,6 +8,7 @@ class Frustum
 {
 public:
 	vec3 pos;
+	vec3 dir;
 	Plane planes[6];
 
 	Frustum() {};
@@ -15,6 +16,7 @@ public:
 	{
 		pos = cameraPos;
 		cameraDir = normalize(cameraDir);
+		dir = cameraDir;
 
 		planes[0] = Plane(cameraDir, nearDist);
 		planes[1] = Plane(-cameraDir, -farDist);

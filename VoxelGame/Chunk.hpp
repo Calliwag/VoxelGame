@@ -27,16 +27,26 @@ public:
 	ivec3 coordinate;
 
 	// Face grids
-	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN + 1> xyFaceGrid;
-	Grid<u8, CHUNK_SPAN + 1, CHUNK_SPAN, CHUNK_SPAN> yzFaceGrid;
-	Grid<u8, CHUNK_SPAN, CHUNK_SPAN + 1, CHUNK_SPAN> xzFaceGrid;
+	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxyFaceGrid;
+	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxyFaceGrid;
+
+	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nyzFaceGrid;
+	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pyzFaceGrid;
+
+	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxzFaceGrid;
+	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxzFaceGrid;
 	void GenFaceGrids();
     void CheckNeighborFaces(Chunk* neighbor);
 
 	// Face lists
-    std::vector<Face> xyFaces;
-    std::vector<Face> yzFaces;
-    std::vector<Face> xzFaces;
+	std::vector<Face> nxyFaces;
+    std::vector<Face> pxyFaces;
+
+	std::vector<Face> nyzFaces;
+    std::vector<Face> pyzFaces;
+
+	std::vector<Face> nxzFaces;
+    std::vector<Face> pxzFaces;
 	void GenFacesSimple();
 	void GenFacesGreedy();
 

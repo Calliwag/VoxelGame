@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <algorithm>
+#include <cassert>
 
 using namespace glm;
 
@@ -26,6 +27,7 @@ public:
 	}
 	T& At(ivec3 pos)
 	{
+		assert(pos.x < X && pos.y < Y && pos.z < Z);
 		return data[pos.x + X * pos.y + X * Y * pos.z];
 	}
 	void Fill(T value)

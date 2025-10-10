@@ -5,6 +5,7 @@
 #include <unordered_map>
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/hash.hpp"
+#include "Generator.hpp"
 
 
 using std::list;
@@ -15,7 +16,9 @@ class ChunkManager
 public:
 	std::unordered_map<ivec3, Chunk> chunks = {};
 	list<ivec3> toGenerateList = {};
+	Generator* gen;
 
+	ChunkManager(Generator* gen) : gen(gen) {}
 	void UpdateList(vec3 pos, float radius, float verticalRadius);
 	void UnloadDistant(vec3 pos, float radius, float verticalRadius);
 	void GenerateOne(vec3 pos);

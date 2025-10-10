@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkManager.cpp" />
+    <ClCompile Include="Generator.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SimView\Bitmap.cpp" />
     <ClCompile Include="SimView\Core.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="ChunkManager.hpp" />
     <ClInclude Include="Face.hpp" />
     <ClInclude Include="Frustum.hpp" />
+    <ClInclude Include="Generator.hpp" />
     <ClInclude Include="Grid.hpp" />
     <ClInclude Include="Plane.hpp" />
     <ClInclude Include="Renderer.hpp" />

@@ -30,9 +30,9 @@ float LinDepth(float depth)
 
 void main()
 {
-    //float value = 1 - pow(2,-LinDepth(gl_FragCoord.z) * 100000000.0);
-    //FragColor = vec4(faceColor.x * value, faceColor.y * value, faceColor.z * value, 1);
-    FragColor = faceColor;
+    float value = 1 - pow(2,-LinDepth(gl_FragCoord.z) * 1000000000.0);
+    FragColor = vec4(faceColor.x * value, faceColor.y * value, faceColor.z * value, 1);
+    //FragColor = faceColor;
 }
 
 )";
@@ -45,31 +45,47 @@ Renderer::Renderer()
     );
     blockShader.BindProgram();
 
-    vec3 pos = { -16,0,16 };
-    float hAngle = 3.1416 / 4;
-    float vAngle = 0;
+    matrixLoc = blockShader.GetVarLoc("matrix");
+    faceColorLoc = blockShader.GetVarLoc("faceColor");
+    offsetLoc = blockShader.GetVarLoc("offset");
+    posLoc = blockShader.GetVarLoc("pos");
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    int frame = 0;
-
-    Grid<vec3, CHUNK_SPAN + 1, CHUNK_SPAN + 1, CHUNK_SPAN + 1> verticesGrid;
-    for (int x = 0; x < CHUNK_SPAN + 1; x++)
-        for (int y = 0; y < CHUNK_SPAN + 1; y++)
-            for (int z = 0; z < CHUNK_SPAN + 1; z++)
-            {
-                verticesGrid.At({ x,y,z }) = { x,y,z };
-            }
-    chunkVertices = VArray(pow(CHUNK_SPAN + 1, 3), 3, verticesGrid.data);
-    blockShader.BindArray(chunkVertices, "pos");
-    tris = IArray(6, rTris);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glFrontFace(GL_CCW);
 }
 
-void Renderer::Update(vec3 pos, vec3 dir, float fovY, float width, float height)
+void Renderer::Update(vec3 pos, vec3 dir, float fovY, float width, float height, vec3 lightDir)
 {
     vec3 up = { 0,0,1 };
     mat4x4 matrix = glm::perspective(3.1416f / 2, width / height, 0.0001f, 10000.0f) * glm::lookAt(pos, pos + dir, up);
-    blockShader.BindMat4x4(matrix, "matrix");
-    frustum = Frustum(pos, dir, 0.001f, 10000.0f, fovY, width / height);
+    blockShader.BindMat4x4(matrix, matrixLoc);
+    frustum = Frustum(pos, dir, 0.0001f, 10000.0f, fovY, width / height);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    lightDir = normalize(lightDir);
+    if (!faceShades)
+        faceShades = new float[6];
+    // Calculate negative XY face shade
+    faceShades[0] = 0.5 * glm::max(lightDir.z, 0.f) + 0.5;
+
+    // Calculate positive XY face shade
+    faceShades[1] = 0.5 * glm::max(-lightDir.z, 0.f) + 0.5;
+
+    // Calculate negative YZ face shade
+    faceShades[2] = 0.5 * glm::max(lightDir.x, 0.f) + 0.5;
+
+    // Calculate positive YZ face shade
+    faceShades[3] = 0.5 * glm::max(-lightDir.x, 0.f) + 0.5;
+
+    // Calculate negative XZ face shade
+    faceShades[4] = 0.5 * glm::max(lightDir.y, 0.f) + 0.5;
+
+    // Calculate positive XZ face shade
+    faceShades[5] = 0.5 * glm::max(-lightDir.y, 0.f) + 0.5;
 }
 
 bool Renderer::DrawChunk(Chunk& chunk)
@@ -77,173 +93,41 @@ bool Renderer::DrawChunk(Chunk& chunk)
     ivec3 size = { CHUNK_SPAN + 1, CHUNK_SPAN + 1, CHUNK_SPAN + 1 };
     ivec3 chunkOffset = CHUNK_SPAN * chunk.coordinate;
     ivec3 frOffset = (ivec3)frustum.pos - chunkOffset;
-    blockShader.BindVec3(chunkOffset, "offset");
+    blockShader.BindVec3(chunkOffset, offsetLoc);
 
     if (!frustum.CullAABB(chunkOffset, chunkOffset + ivec3{ CHUNK_SPAN,CHUNK_SPAN,CHUNK_SPAN }))
         return false;
-    int faceCount;
+    u8 shade;
 
-    // Negative XY faces
-    blockShader.BindColor(Color::Red(1.0f), "faceColor");
-    faceCount = chunk.nxyFaces.size();
-    for (int i = 0; i < faceCount; i++)
-    {
-        auto& face = chunk.nxyFaces[i];
-        //if (!frustum.CullFace(face, chunkOffset))
-        //    continue;
-        if (face.verts[0].z - frOffset.z < 0)
-            continue;
-        int c0 = GetIndex(face.verts[0], size);
-        int c1 = GetIndex(face.verts[1], size);
-        int c2 = GetIndex(face.verts[2], size);
-        int c3 = GetIndex(face.verts[3], size);
-        rTris[0] = c0;
-        rTris[1] = c1;
-        rTris[2] = c2;
-        rTris[3] = c2;
-        rTris[4] = c3;
-        rTris[5] = c0;
-        tris.Set(0, 6, rTris);
+    shade = faceShades[0] * 255;
+    blockShader.BindColor(Color{shade,shade,shade,1}, faceColorLoc);
+    blockShader.BindArray(*chunk.nxyArray, posLoc);
+    blockShader.RenderTris(chunk.nxyFaces.size() * 2);
 
-        blockShader.BindIndexArray(tris);
+    shade = faceShades[1] * 255;
+    blockShader.BindColor(Color{ shade,shade,shade,1 }, faceColorLoc);
+    blockShader.BindArray(*chunk.pxyArray, posLoc);
+    blockShader.RenderTris(chunk.pxyFaces.size() * 2);
 
-        blockShader.RenderTris(2);
-        //blockShader.RenderPoints(6);
-    }
-    // Positive XY faces
-    faceCount = chunk.pxyFaces.size();
-    for (int i = 0; i < faceCount; i++)
-    {
-        auto& face = chunk.pxyFaces[i];
-        //if (!frustum.CullFace(face, chunkOffset))
-        //    continue;
-        if (face.verts[0].z - frOffset.z > 0)
-            continue;
-        int c0 = GetIndex(face.verts[0], size);
-        int c1 = GetIndex(face.verts[1], size);
-        int c2 = GetIndex(face.verts[2], size);
-        int c3 = GetIndex(face.verts[3], size);
-        rTris[0] = c0;
-        rTris[1] = c1;
-        rTris[2] = c2;
-        rTris[3] = c2;
-        rTris[4] = c3;
-        rTris[5] = c0;
-        tris.Set(0, 6, rTris);
+    shade = faceShades[2] * 255;
+    blockShader.BindColor(Color{ shade,shade,shade,1 }, faceColorLoc);
+    blockShader.BindArray(*chunk.nyzArray, posLoc);
+    blockShader.RenderTris(chunk.nyzFaces.size() * 2);
 
-        blockShader.BindIndexArray(tris);
+    shade = faceShades[3] * 255;
+    blockShader.BindColor(Color{ shade,shade,shade,1 }, faceColorLoc);
+    blockShader.BindArray(*chunk.pyzArray, posLoc);
+    blockShader.RenderTris(chunk.pyzFaces.size() * 2);
 
-        blockShader.RenderTris(2);
-        //blockShader.RenderPoints(6);
-    }
+    shade = faceShades[4] * 255;
+    blockShader.BindColor(Color{ shade,shade,shade,1 }, faceColorLoc);
+    blockShader.BindArray(*chunk.nxzArray, posLoc);
+    blockShader.RenderTris(chunk.nxzFaces.size() * 2);
 
-    // Negative YZ faces
-    blockShader.BindColor(Color::Green(1.0f), "faceColor");
-    faceCount = chunk.nyzFaces.size();
-    for (int i = 0; i < faceCount; i++)
-    {
-        auto& face = chunk.nyzFaces[i];
-        //if (!frustum.CullFace(face, chunkOffset))
-        //    continue;
-        if (face.verts[0].x - frOffset.x < 0)
-            continue;
-        int c0 = GetIndex(face.verts[0], size);
-        int c1 = GetIndex(face.verts[1], size);
-        int c2 = GetIndex(face.verts[2], size);
-        int c3 = GetIndex(face.verts[3], size);
-        rTris[0] = c0;
-        rTris[1] = c1;
-        rTris[2] = c2;
-        rTris[3] = c2;
-        rTris[4] = c3;
-        rTris[5] = c0;
-        tris.Set(0, 6, rTris);
-
-        blockShader.BindIndexArray(tris);
-
-        blockShader.RenderTris(2);
-        //blockShader.RenderPoints(6);
-    }
-    // Positive YZ faces
-    faceCount = chunk.pyzFaces.size();
-    for (int i = 0; i < faceCount; i++)
-    {
-        auto& face = chunk.pyzFaces[i];
-        //if (!frustum.CullFace(face, chunkOffset))
-        //    continue;
-        if (face.verts[0].x - frOffset.x > 0)
-            continue;
-        int c0 = GetIndex(face.verts[0], size);
-        int c1 = GetIndex(face.verts[1], size);
-        int c2 = GetIndex(face.verts[2], size);
-        int c3 = GetIndex(face.verts[3], size);
-        rTris[0] = c0;
-        rTris[1] = c1;
-        rTris[2] = c2;
-        rTris[3] = c2;
-        rTris[4] = c3;
-        rTris[5] = c0;
-        tris.Set(0, 6, rTris);
-
-        blockShader.BindIndexArray(tris);
-
-        blockShader.RenderTris(2);
-        //blockShader.RenderPoints(6);
-    }
-
-    // Negative XZ faces
-    blockShader.BindColor(Color::Blue(1.0f), "faceColor");
-    faceCount = chunk.nxzFaces.size();
-    for (int i = 0; i < faceCount; i++)
-    {
-        auto& face = chunk.nxzFaces[i];
-        //if (!frustum.CullFace(face, chunkOffset))
-        //    continue;
-        if (face.verts[0].y - frOffset.y < 0)
-            continue;
-        int c0 = GetIndex(face.verts[0], size);
-        int c1 = GetIndex(face.verts[1], size);
-        int c2 = GetIndex(face.verts[2], size);
-        int c3 = GetIndex(face.verts[3], size);
-        rTris[0] = c0;
-        rTris[1] = c1;
-        rTris[2] = c2;
-        rTris[3] = c2;
-        rTris[4] = c3;
-        rTris[5] = c0;
-        tris.Set(0, 6, rTris);
-
-        blockShader.BindIndexArray(tris);
-
-        blockShader.RenderTris(2);
-        //blockShader.RenderPoints(6);
-    }
-    // Positive XZ faces
-    faceCount = chunk.pxzFaces.size();
-    for (int i = 0; i < faceCount; i++)
-    {
-        auto& face = chunk.pxzFaces[i];
-        //if (!frustum.CullFace(face, chunkOffset))
-        //    continue;
-        if (face.verts[0].y - frOffset.y > 0)
-            continue;
-        int c0 = GetIndex(face.verts[0], size);
-        int c1 = GetIndex(face.verts[1], size);
-        int c2 = GetIndex(face.verts[2], size);
-        int c3 = GetIndex(face.verts[3], size);
-        rTris[0] = c0;
-        rTris[1] = c1;
-        rTris[2] = c2;
-        rTris[3] = c2;
-        rTris[4] = c3;
-        rTris[5] = c0;
-        tris.Set(0, 6, rTris);
-
-        blockShader.BindIndexArray(tris);
-
-        blockShader.RenderTris(2);
-        //blockShader.RenderPoints(6);
-    }
+    shade = faceShades[5] * 255;
+    blockShader.BindColor(Color{ shade,shade,shade,1 }, faceColorLoc);
+    blockShader.BindArray(*chunk.pxzArray, posLoc);
+    blockShader.RenderTris(chunk.pxzFaces.size() * 2);
 
     return true;
 }

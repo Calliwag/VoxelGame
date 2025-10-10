@@ -21,36 +21,38 @@ int main()
     window.BeginContext();
 
     Renderer r;
-    ChunkManager cm;
+    //Generator* gen = new FlatGen(-8, 1);
+    Generator* gen = new WaveGen(1, -8, 4, 32, 32);
+    ChunkManager cm(gen);
 
     int chunksPerFrame = 10;
     int updateListInterval = 10;
-    float radius = 1024;
+    float radius = 512;
     float vRadius = 16;
-    float drawRadius = 1024;
+    float drawRadius = 512;
 
     int frame = 0;
-    vec3 pos = { .5,.5,-6.25 };
+    vec3 pos = { .5,.5, 0 };
     vec3 dir = { 1,0,0 };
     float hAngle = 0;
     float vAngle = 0;
     float angleSpeed = 1;
     float moveSpeed = 8;
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     bool genNew = true;
+    float lHAngle = 3.1416 / 6.f;
+    float lVAngle = -3.1416 / 4.f;
+
     while (!window.ShouldClose())
     {
         window.BeginFrame();
         window.PollEvents();
         window.FillScreen(Color::Black(1.0f));
-        glClear(GL_DEPTH_BUFFER_BIT);
 
-        //pos += vec3(.1, 0, 0);
-        //dir = { cos(frame / 100.f),sin(frame / 100.f),0 };
         vec2 hDir = { cos(hAngle),sin(hAngle) };
         vec3 dir = { hDir.x * cos(vAngle),hDir.y * cos(vAngle),sin(vAngle) };
-        //dir = -normalize(pos);
-        r.Update(pos, dir, 3.1416 / 2, window.width, window.height);
+        vec2 lHDir = { cos(lHAngle), sin(lHAngle) };
+        vec3 lightDir = { lHDir.x * cos(lVAngle), lHDir.y * cos(lVAngle), sin(lVAngle) };
+        r.Update(pos, dir, 3.1416 / 2, window.width, window.height, lightDir);
 
         vec3 iPos = pos / (float)CHUNK_SPAN;
         float iRadius = drawRadius / (float)CHUNK_SPAN;

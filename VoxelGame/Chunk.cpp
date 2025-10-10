@@ -464,9 +464,9 @@ void Chunk::GenFacesGreedy()
             ivec3* verts = new ivec3[]
             {
                 corner + ivec3{ 0,0,1 },
-                corner + ivec3{ rectX + 1,0,1 },
+                corner + ivec3{ 0,rectY + 1,1 },
                 corner + ivec3{ rectX + 1,rectY + 1,1 },
-                corner + ivec3{ 0,rectY + 1,1 }
+                corner + ivec3{ rectX + 1,0,1 },
             };
             pxyFaces.emplace_back(verts, currentType);
             corner.x += rectX + 1;
@@ -632,9 +632,9 @@ void Chunk::GenFacesGreedy()
             ivec3* verts = new ivec3[]
             {
                 corner + ivec3{ 1,0,0 },
-                corner + ivec3{ 1,rectY + 1,0 },
+                corner + ivec3{ 1,0,rectZ + 1 },
                 corner + ivec3{ 1,rectY + 1,rectZ + 1 },
-                corner + ivec3{ 1,0,rectZ + 1 }
+                corner + ivec3{ 1,rectY + 1,0 },
             };
             pyzFaces.emplace_back(verts, currentType);
             corner.y += rectY + 1;
@@ -716,9 +716,9 @@ void Chunk::GenFacesGreedy()
             ivec3* verts = new ivec3[]
             {
                 corner + ivec3{ 0,0,0 },
-                corner + ivec3{ rectX + 1,0,0 },
+                corner + ivec3{ 0,0,rectZ + 1 },
                 corner + ivec3{ rectX + 1,0,rectZ + 1 },
-                corner + ivec3{ 0,0,rectZ + 1 }
+                corner + ivec3{ rectX + 1,0,0 },
             };
             nxzFaces.emplace_back(verts, currentType);
             corner.x += rectX + 1;
@@ -810,6 +810,151 @@ void Chunk::GenFacesGreedy()
     }
 }
 
+void Chunk::GenArrays()
+{
+    int size;
+    vec3* verts;
+    int vIndex;
+
+    // Negative XY faces
+    size = nxyFaces.size();
+    verts = new vec3[size * 6];
+    vIndex = 0;
+    for (auto& face : nxyFaces)
+    {
+        auto& c0 = face.verts[0];
+        auto& c1 = face.verts[1];
+        auto& c2 = face.verts[2];
+        auto& c3 = face.verts[3];
+        verts[vIndex + 0] = c0;
+        verts[vIndex + 1] = c1;
+        verts[vIndex + 2] = c2;
+        verts[vIndex + 3] = c2;
+        verts[vIndex + 4] = c3;
+        verts[vIndex + 5] = c0;
+        vIndex += 6;
+    }
+    if (nxyArray)
+        delete nxyArray;
+    nxyArray = new VArray(size * 6, 3, verts);
+    delete[] verts;
+
+    // Positive XY faces
+    size = pxyFaces.size();
+    verts = new vec3[size * 6];
+    vIndex = 0;
+    for (auto& face : pxyFaces)
+    {
+        auto& c0 = face.verts[0];
+        auto& c1 = face.verts[1];
+        auto& c2 = face.verts[2];
+        auto& c3 = face.verts[3];
+        verts[vIndex + 0] = c0;
+        verts[vIndex + 1] = c1;
+        verts[vIndex + 2] = c2;
+        verts[vIndex + 3] = c2;
+        verts[vIndex + 4] = c3;
+        verts[vIndex + 5] = c0;
+        vIndex += 6;
+    }
+    if (pxyArray)
+        delete pxyArray;
+    pxyArray = new VArray(size * 6, 3, verts);
+    delete[] verts;
+
+    // Negative YZ faces
+    size = nyzFaces.size();
+    verts = new vec3[size * 6];
+    vIndex = 0;
+    for (auto& face : nyzFaces)
+    {
+        auto& c0 = face.verts[0];
+        auto& c1 = face.verts[1];
+        auto& c2 = face.verts[2];
+        auto& c3 = face.verts[3];
+        verts[vIndex + 0] = c0;
+        verts[vIndex + 1] = c1;
+        verts[vIndex + 2] = c2;
+        verts[vIndex + 3] = c2;
+        verts[vIndex + 4] = c3;
+        verts[vIndex + 5] = c0;
+        vIndex += 6;
+    }
+    if (nyzArray)
+        delete nyzArray;
+    nyzArray = new VArray(size * 6, 3, verts);
+    delete[] verts;
+
+    // Positive YZ faces
+    size = pyzFaces.size();
+    verts = new vec3[size * 6];
+    vIndex = 0;
+    for (auto& face : pyzFaces)
+    {
+        auto& c0 = face.verts[0];
+        auto& c1 = face.verts[1];
+        auto& c2 = face.verts[2];
+        auto& c3 = face.verts[3];
+        verts[vIndex + 0] = c0;
+        verts[vIndex + 1] = c1;
+        verts[vIndex + 2] = c2;
+        verts[vIndex + 3] = c2;
+        verts[vIndex + 4] = c3;
+        verts[vIndex + 5] = c0;
+        vIndex += 6;
+    }
+    if (pyzArray)
+        delete pyzArray;
+    pyzArray = new VArray(size * 6, 3, verts);
+    delete[] verts;
+
+    // Negative XZ faces
+    size = nxzFaces.size();
+    verts = new vec3[size * 6];
+    vIndex = 0;
+    for (auto& face : nxzFaces)
+    {
+        auto& c0 = face.verts[0];
+        auto& c1 = face.verts[1];
+        auto& c2 = face.verts[2];
+        auto& c3 = face.verts[3];
+        verts[vIndex + 0] = c0;
+        verts[vIndex + 1] = c1;
+        verts[vIndex + 2] = c2;
+        verts[vIndex + 3] = c2;
+        verts[vIndex + 4] = c3;
+        verts[vIndex + 5] = c0;
+        vIndex += 6;
+    }
+    if (nxzArray)
+        delete nxzArray;
+    nxzArray = new VArray(size * 6, 3, verts);
+    delete[] verts;
+
+    // Positive XZ faces
+    size = pxzFaces.size();
+    verts = new vec3[size * 6];
+    vIndex = 0;
+    for (auto& face : pxzFaces)
+    {
+        auto& c0 = face.verts[0];
+        auto& c1 = face.verts[1];
+        auto& c2 = face.verts[2];
+        auto& c3 = face.verts[3];
+        verts[vIndex + 0] = c0;
+        verts[vIndex + 1] = c1;
+        verts[vIndex + 2] = c2;
+        verts[vIndex + 3] = c2;
+        verts[vIndex + 4] = c3;
+        verts[vIndex + 5] = c0;
+        vIndex += 6;
+    }
+    if (pxzArray)
+        delete pxzArray;
+    pxzArray = new VArray(size * 6, 3, verts);
+    delete[] verts;
+}
+
 Chunk::Chunk(ivec3 coordinate) : coordinate(coordinate)
 {
 
@@ -853,6 +998,16 @@ void Chunk::GenChunkLevel(int level)
     //data.At({ 0,0,relLevel + 1 }) = 1;
     //data.At({ 0,0,relLevel + 2 }) = 1;
     data.At({ 0,0,relLevel + 3 }) = 1;
+}
+
+void Chunk::Gen(Generator* gen)
+{
+    for(int x = 0; x < CHUNK_SPAN; x++)
+        for(int y = 0; y < CHUNK_SPAN; y++)
+            for (int z = 0; z < CHUNK_SPAN; z++)
+            {
+                data.At({ x,y,z }) = gen->GenBlock(coordinate, { x,y,z });
+            }
 }
 
 u8 Chunk::GetData(ivec3 coord)

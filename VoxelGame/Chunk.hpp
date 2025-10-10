@@ -5,6 +5,8 @@
 #include "Grid.hpp"
 #include <vector>
 #include "Face.hpp"
+#include "SimView/SimView.hpp"
+#include "Generator.hpp"
 
 typedef std::uint8_t u8;
 typedef std::uint8_t u16;
@@ -14,6 +16,7 @@ typedef std::int8_t i16;
 typedef std::int8_t i32;
 
 using namespace glm;
+using namespace SimView;
 
 constexpr int CHUNK_SPAN = 16;
 constexpr int CHUNK_AREA = CHUNK_SPAN * CHUNK_SPAN;
@@ -50,11 +53,22 @@ public:
 	void GenFacesSimple();
 	void GenFacesGreedy();
 
+	VArray* nxyArray;
+	VArray* pxyArray;
+	
+	VArray* nyzArray;
+	VArray* pyzArray;
+
+	VArray* nxzArray;
+	VArray* pxzArray;
+	void GenArrays();
+
 public:
 	Chunk(ivec3 coordinate);
 	~Chunk();
 	void TestGenChunk();
 	void GenChunkLevel(int level);
+	void Gen(Generator* gen);
 
 	u8 GetData(ivec3 coord);
 

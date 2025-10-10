@@ -12,12 +12,16 @@ public:
 	ShaderProgram blockShader;
 	VArray chunkVertices;
 	Frustum frustum;
-	int rTris[6];
-	IArray tris;
+	float* faceShades;
+
+	GLint matrixLoc;
+	GLint faceColorLoc;
+	GLint offsetLoc;
+	GLint posLoc;
 
 	Renderer();
 
-	void Update(vec3 pos, vec3 dir, float fovY, float width, float height);
+	void Update(vec3 pos, vec3 dir, float fovY, float width, float height, vec3 lightDir);
 
 	bool DrawChunk(Chunk& chunk);
 };

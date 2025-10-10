@@ -53,11 +53,12 @@ public:
 	}
 	bool CullFace(Face& face, vec3 chunkOffset)
 	{
+		chunkOffset -= pos;
 		for (int p = 0; p < 6; p++)
 		{
 			int in = 0;
 			for (int i = 0; i < 4; i++) {
-				if (planes[p].GetSignedDist(((vec3)face.verts[i] + chunkOffset) - pos) > 0)
+				if (planes[p].GetSignedDist((vec3)face.verts[i] + chunkOffset) > 0)
 					in++;
 			}
 			if (in == 0)

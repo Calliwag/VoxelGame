@@ -23,11 +23,14 @@ int main()
     Renderer r;
     ChunkManager cm;
 
-    float radius = 128;
-    float drawRadius = 128;
+    int chunksPerFrame = 10;
+    int updateListInterval = 10;
+    float radius = 1024;
+    float vRadius = 16;
+    float drawRadius = 1024;
 
     int frame = 0;
-    vec3 pos = { .5,.5,-6 };
+    vec3 pos = { .5,.5,-6.25 };
     vec3 dir = { 1,0,0 };
     float hAngle = 0;
     float vAngle = 0;
@@ -59,11 +62,17 @@ int main()
 
         window.EndFrame();
 
+        if (genNew && frame % updateListInterval == 0)
+        {
+            cm.UpdateList(pos, radius, vRadius);
+            cm.UnloadDistant(pos, radius, vRadius);
+        }
         if (genNew && frame % 1 == 0)
         {
-            cm.UpdateList(pos, radius);
-            cm.UnloadDistant(pos, radius);
-            cm.GenerateOne(pos);
+            for (int i = 0; i < chunksPerFrame; i++)
+            {
+                cm.GenerateOne(pos);
+            }
         }
 
         if (window.IsKeyDown(GLFW_KEY_LEFT))
@@ -90,7 +99,7 @@ int main()
 
         vAngle = glm::clamp(vAngle, -3.1415f / 2.f, 3.1415f / 2.f);
 
-        std::cout << "FPS: " << window.GetFPS() << '\n';
+        std::cout << "FPS: " << window.GetFPS() << ", chunks to generate: " << cm.toGenerateList.size() << '\n';
         frame++;
     }
 

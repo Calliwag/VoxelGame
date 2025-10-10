@@ -22,8 +22,16 @@ uniform vec4 faceColor;
 
 out vec4 FragColor;
 
+float LinDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0) / 10000 * (1 - z);
+}
+
 void main()
 {
+    //float value = 1 - pow(2,-LinDepth(gl_FragCoord.z) * 100000000.0);
+    //FragColor = vec4(faceColor.x * value, faceColor.y * value, faceColor.z * value, 1);
     FragColor = faceColor;
 }
 
@@ -59,7 +67,7 @@ Renderer::Renderer()
 void Renderer::Update(vec3 pos, vec3 dir, float fovY, float width, float height)
 {
     vec3 up = { 0,0,1 };
-    mat4x4 matrix = glm::perspective(3.1416f / 2, width / height, 0.001f, 10000.0f) * glm::lookAt(pos, pos + dir, up);
+    mat4x4 matrix = glm::perspective(3.1416f / 2, width / height, 0.0001f, 10000.0f) * glm::lookAt(pos, pos + dir, up);
     blockShader.BindMat4x4(matrix, "matrix");
     frustum = Frustum(pos, dir, 0.001f, 10000.0f, fovY, width / height);
 }
@@ -73,14 +81,16 @@ bool Renderer::DrawChunk(Chunk& chunk)
 
     if (!frustum.CullAABB(chunkOffset, chunkOffset + ivec3{ CHUNK_SPAN,CHUNK_SPAN,CHUNK_SPAN }))
         return false;
+    int faceCount;
 
-    blockShader.BindColor(Color::Red(1.0f), "faceColor");
     // Negative XY faces
-    for (int i = 0; i < chunk.nxyFaces.size(); i++)
+    blockShader.BindColor(Color::Red(1.0f), "faceColor");
+    faceCount = chunk.nxyFaces.size();
+    for (int i = 0; i < faceCount; i++)
     {
         auto& face = chunk.nxyFaces[i];
-        if (!frustum.CullFace(face, chunkOffset))
-            continue;
+        //if (!frustum.CullFace(face, chunkOffset))
+        //    continue;
         if (face.verts[0].z - frOffset.z < 0)
             continue;
         int c0 = GetIndex(face.verts[0], size);
@@ -101,11 +111,12 @@ bool Renderer::DrawChunk(Chunk& chunk)
         //blockShader.RenderPoints(6);
     }
     // Positive XY faces
-    for (int i = 0; i < chunk.pxyFaces.size(); i++)
+    faceCount = chunk.pxyFaces.size();
+    for (int i = 0; i < faceCount; i++)
     {
         auto& face = chunk.pxyFaces[i];
-        if (!frustum.CullFace(face, chunkOffset))
-            continue;
+        //if (!frustum.CullFace(face, chunkOffset))
+        //    continue;
         if (face.verts[0].z - frOffset.z > 0)
             continue;
         int c0 = GetIndex(face.verts[0], size);
@@ -128,11 +139,12 @@ bool Renderer::DrawChunk(Chunk& chunk)
 
     // Negative YZ faces
     blockShader.BindColor(Color::Green(1.0f), "faceColor");
-    for (int i = 0; i < chunk.nyzFaces.size(); i++)
+    faceCount = chunk.nyzFaces.size();
+    for (int i = 0; i < faceCount; i++)
     {
         auto& face = chunk.nyzFaces[i];
-        if (!frustum.CullFace(face, chunkOffset))
-            continue;
+        //if (!frustum.CullFace(face, chunkOffset))
+        //    continue;
         if (face.verts[0].x - frOffset.x < 0)
             continue;
         int c0 = GetIndex(face.verts[0], size);
@@ -152,13 +164,13 @@ bool Renderer::DrawChunk(Chunk& chunk)
         blockShader.RenderTris(2);
         //blockShader.RenderPoints(6);
     }
-
     // Positive YZ faces
-    for (int i = 0; i < chunk.pyzFaces.size(); i++)
+    faceCount = chunk.pyzFaces.size();
+    for (int i = 0; i < faceCount; i++)
     {
         auto& face = chunk.pyzFaces[i];
-        if (!frustum.CullFace(face, chunkOffset))
-            continue;
+        //if (!frustum.CullFace(face, chunkOffset))
+        //    continue;
         if (face.verts[0].x - frOffset.x > 0)
             continue;
         int c0 = GetIndex(face.verts[0], size);
@@ -181,11 +193,12 @@ bool Renderer::DrawChunk(Chunk& chunk)
 
     // Negative XZ faces
     blockShader.BindColor(Color::Blue(1.0f), "faceColor");
-    for (int i = 0; i < chunk.nxzFaces.size(); i++)
+    faceCount = chunk.nxzFaces.size();
+    for (int i = 0; i < faceCount; i++)
     {
         auto& face = chunk.nxzFaces[i];
-        if (!frustum.CullFace(face, chunkOffset))
-            continue;
+        //if (!frustum.CullFace(face, chunkOffset))
+        //    continue;
         if (face.verts[0].y - frOffset.y < 0)
             continue;
         int c0 = GetIndex(face.verts[0], size);
@@ -205,13 +218,13 @@ bool Renderer::DrawChunk(Chunk& chunk)
         blockShader.RenderTris(2);
         //blockShader.RenderPoints(6);
     }
-
     // Positive XZ faces
-    for (int i = 0; i < chunk.pxzFaces.size(); i++)
+    faceCount = chunk.pxzFaces.size();
+    for (int i = 0; i < faceCount; i++)
     {
         auto& face = chunk.pxzFaces[i];
-        if (!frustum.CullFace(face, chunkOffset))
-            continue;
+        //if (!frustum.CullFace(face, chunkOffset))
+        //    continue;
         if (face.verts[0].y - frOffset.y > 0)
             continue;
         int c0 = GetIndex(face.verts[0], size);

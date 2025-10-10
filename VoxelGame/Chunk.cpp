@@ -849,7 +849,10 @@ void Chunk::GenChunkLevel(int level)
             {
                 data.At({ x,y,z }) = 1;
             }
-    data.At({ 8,8,relLevel }) = 1;
+    data.At({ 0,0,relLevel + 0 }) = 1;
+    //data.At({ 0,0,relLevel + 1 }) = 1;
+    //data.At({ 0,0,relLevel + 2 }) = 1;
+    data.At({ 0,0,relLevel + 3 }) = 1;
 }
 
 u8 Chunk::GetData(ivec3 coord)

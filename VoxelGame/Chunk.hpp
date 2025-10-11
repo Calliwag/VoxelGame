@@ -53,14 +53,10 @@ public:
 	void GenFacesSimple();
 	void GenFacesGreedy();
 
-	VArray* nxyArray;
-	VArray* pxyArray;
-	
-	VArray* nyzArray;
-	VArray* pyzArray;
-
-	VArray* nxzArray;
-	VArray* pxzArray;
+	VArray* faceVertArray;
+	VArray* faceNormArray;
+	int faceCount;
+	bool arraysGenerated = false;
 	void GenArrays();
 
 public:

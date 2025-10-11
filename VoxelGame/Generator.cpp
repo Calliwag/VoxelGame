@@ -10,6 +10,13 @@ u8 FlatGen::GenBlock(ivec3 chunkOffset, ivec3 blockOffset)
     return 0;
 }
 
+bool FlatGen::IsChunkEmpty(ivec3 chunkOffset)
+{
+    if (level < chunkOffset.z * CHUNK_SPAN)
+        return true;
+    return false;
+}
+
 u8 WaveGen::GenBlock(ivec3 chunkOffset, ivec3 blockOffset)
 {
     chunkOffset *= CHUNK_SPAN;
@@ -20,4 +27,12 @@ u8 WaveGen::GenBlock(ivec3 chunkOffset, ivec3 blockOffset)
     if (blockOffset.z < relLevel)
         return block;
     return 0;
+}
+
+bool WaveGen::IsChunkEmpty(ivec3 chunkOffset)
+{
+    int waveTop = baseLevel + amplitude;
+    if (waveTop < chunkOffset.z * CHUNK_SPAN)
+        return true;
+    return false;
 }

@@ -12,12 +12,12 @@ public:
 	ShaderProgram blockShader;
 	VArray chunkVertices;
 	Frustum frustum;
-	float* faceShades;
 
 	GLint matrixLoc;
-	GLint faceColorLoc;
 	GLint offsetLoc;
 	GLint posLoc;
+	GLint normLoc;
+	GLint lightDirLoc;
 
 	Renderer();
 

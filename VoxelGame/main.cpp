@@ -16,23 +16,25 @@ int main()
     std::cout << "Hello World!\n";
 
     Core::Init();
+    glfwWindowHint(GLFW_SAMPLES, 4);
     Window window(400, 400, "VoxelGame");
+    glEnable(GL_MULTISAMPLE);
     window.SetBlendMode(BlendMode::Alpha);
     window.BeginContext();
 
     Renderer r;
     //Generator* gen = new FlatGen(-8, 1);
-    Generator* gen = new WaveGen(1, -8, 4, 32, 32);
+    Generator* gen = new WaveGen(1, -8, 8, 128, 128);
     ChunkManager cm(gen);
 
     int chunksPerFrame = 10;
     int updateListInterval = 10;
-    float radius = 512;
-    float vRadius = 16;
-    float drawRadius = 512;
+    float radius = 1024;
+    float vRadius = 128;
+    float drawRadius = 1024;
 
     int frame = 0;
-    vec3 pos = { .5,.5, 0 };
+    vec3 pos = { .5,.5, 8 };
     vec3 dir = { 1,0,0 };
     float hAngle = 0;
     float vAngle = 0;

@@ -70,25 +70,28 @@ public:
 	{
 		// Use our min max to define eight corners
 		vec3 corners[8] = {
-			{nPoint.x, nPoint.y, nPoint.z}, // x y z
-			{pPoint.x, nPoint.y, nPoint.z}, // X y z
-			{nPoint.x, pPoint.y, nPoint.z}, // x Y z
-			{pPoint.x, pPoint.y, nPoint.z}, // X Y z
+			vec3{nPoint.x, nPoint.y, nPoint.z} - pos, // x y z
+			vec3{pPoint.x, nPoint.y, nPoint.z} - pos, // X y z
+			vec3{nPoint.x, pPoint.y, nPoint.z} - pos, // x Y z
+			vec3{pPoint.x, pPoint.y, nPoint.z} - pos, // X Y z
 
-			{nPoint.x, nPoint.y, pPoint.z}, // x y Z
-			{pPoint.x, nPoint.y, pPoint.z}, // X y Z
-			{nPoint.x, pPoint.y, pPoint.z}, // x Y Z
-			{pPoint.x, pPoint.y, pPoint.z}, // X Y Z
+			vec3{nPoint.x, nPoint.y, pPoint.z} - pos, // x y Z
+			vec3{pPoint.x, nPoint.y, pPoint.z} - pos, // X y Z
+			vec3{nPoint.x, pPoint.y, pPoint.z} - pos, // x Y Z
+			vec3{pPoint.x, pPoint.y, pPoint.z} - pos, // X Y Z
 		};
 
 		for (int p = 0; p < 6; p++)
 		{
-			int in = 0;
+			bool in = false;
 			for (int i = 0; i < 8; i++) {
-				if (planes[p].GetSignedDist(corners[i] - pos) > 0)
-					in++;
+				if (planes[p].GetSignedDist(corners[i]) > 0)
+				{
+					in = true;
+					break;
+				}
 			}
-			if (in == 0)
+			if (!in)
 				return false;
 		}
 		return true;

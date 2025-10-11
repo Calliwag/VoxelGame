@@ -2,6 +2,8 @@
 
 void Chunk::GenFaceGrids()
 {
+    arraysGenerated = false;
+
     nxyFaceGrid.Fill(0);
     pxyFaceGrid.Fill(0);
     nyzFaceGrid.Fill(0);
@@ -91,6 +93,7 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
 {
     if (neighbor == nullptr)
         return;
+    arraysGenerated = false;
     ivec3 offset = neighbor->coordinate - coordinate;
     if (taxiLen(offset) > 1)
         return;
@@ -812,14 +815,24 @@ void Chunk::GenFacesGreedy()
 
 void Chunk::GenArrays()
 {
-    int size;
-    vec3* verts;
-    int vIndex;
+    arraysGenerated = true;
+
+    if (faceVertArray)
+        delete faceVertArray;
+    if (faceNormArray)
+        delete faceNormArray;
+
+    faceCount = (nxyFaces.size() + pxyFaces.size() + nyzFaces.size() + pyzFaces.size() + nxzFaces.size() + pxzFaces.size());
+    if (faceCount == 0)
+        return;
+    int totalSize = 6 * faceCount;
+    vec3* verts = new vec3[totalSize];
+    vec3* norms = new vec3[totalSize];
+    int vIndex = 0;
+    vec3 norm;
 
     // Negative XY faces
-    size = nxyFaces.size();
-    verts = new vec3[size * 6];
-    vIndex = 0;
+    norm = { 0,0,-1 };
     for (auto& face : nxyFaces)
     {
         auto& c0 = face.verts[0];
@@ -832,17 +845,15 @@ void Chunk::GenArrays()
         verts[vIndex + 3] = c2;
         verts[vIndex + 4] = c3;
         verts[vIndex + 5] = c0;
+        for (int i = 0; i < 6; i++)
+        {
+            norms[vIndex + i] = norm;
+        }
         vIndex += 6;
     }
-    if (nxyArray)
-        delete nxyArray;
-    nxyArray = new VArray(size * 6, 3, verts);
-    delete[] verts;
 
     // Positive XY faces
-    size = pxyFaces.size();
-    verts = new vec3[size * 6];
-    vIndex = 0;
+    norm = { 0,0,1 };
     for (auto& face : pxyFaces)
     {
         auto& c0 = face.verts[0];
@@ -855,17 +866,15 @@ void Chunk::GenArrays()
         verts[vIndex + 3] = c2;
         verts[vIndex + 4] = c3;
         verts[vIndex + 5] = c0;
+        for (int i = 0; i < 6; i++)
+        {
+            norms[vIndex + i] = norm;
+        }
         vIndex += 6;
     }
-    if (pxyArray)
-        delete pxyArray;
-    pxyArray = new VArray(size * 6, 3, verts);
-    delete[] verts;
 
     // Negative YZ faces
-    size = nyzFaces.size();
-    verts = new vec3[size * 6];
-    vIndex = 0;
+    norm = { -1,0,0 };
     for (auto& face : nyzFaces)
     {
         auto& c0 = face.verts[0];
@@ -878,17 +887,15 @@ void Chunk::GenArrays()
         verts[vIndex + 3] = c2;
         verts[vIndex + 4] = c3;
         verts[vIndex + 5] = c0;
+        for (int i = 0; i < 6; i++)
+        {
+            norms[vIndex + i] = norm;
+        }
         vIndex += 6;
     }
-    if (nyzArray)
-        delete nyzArray;
-    nyzArray = new VArray(size * 6, 3, verts);
-    delete[] verts;
 
     // Positive YZ faces
-    size = pyzFaces.size();
-    verts = new vec3[size * 6];
-    vIndex = 0;
+    norm = { -1,0,0 };
     for (auto& face : pyzFaces)
     {
         auto& c0 = face.verts[0];
@@ -901,17 +908,15 @@ void Chunk::GenArrays()
         verts[vIndex + 3] = c2;
         verts[vIndex + 4] = c3;
         verts[vIndex + 5] = c0;
+        for (int i = 0; i < 6; i++)
+        {
+            norms[vIndex + i] = norm;
+        }
         vIndex += 6;
     }
-    if (pyzArray)
-        delete pyzArray;
-    pyzArray = new VArray(size * 6, 3, verts);
-    delete[] verts;
 
     // Negative XZ faces
-    size = nxzFaces.size();
-    verts = new vec3[size * 6];
-    vIndex = 0;
+    norm = { 0,-1,0 };
     for (auto& face : nxzFaces)
     {
         auto& c0 = face.verts[0];
@@ -924,17 +929,15 @@ void Chunk::GenArrays()
         verts[vIndex + 3] = c2;
         verts[vIndex + 4] = c3;
         verts[vIndex + 5] = c0;
+        for (int i = 0; i < 6; i++)
+        {
+            norms[vIndex + i] = norm;
+        }
         vIndex += 6;
     }
-    if (nxzArray)
-        delete nxzArray;
-    nxzArray = new VArray(size * 6, 3, verts);
-    delete[] verts;
 
     // Positive XZ faces
-    size = pxzFaces.size();
-    verts = new vec3[size * 6];
-    vIndex = 0;
+    norm = { 0,1,0 };
     for (auto& face : pxzFaces)
     {
         auto& c0 = face.verts[0];
@@ -947,12 +950,15 @@ void Chunk::GenArrays()
         verts[vIndex + 3] = c2;
         verts[vIndex + 4] = c3;
         verts[vIndex + 5] = c0;
+        for (int i = 0; i < 6; i++)
+        {
+            norms[vIndex + i] = norm;
+        }
         vIndex += 6;
     }
-    if (pxzArray)
-        delete pxzArray;
-    pxzArray = new VArray(size * 6, 3, verts);
-    delete[] verts;
+
+    faceVertArray = new VArray(totalSize, 3, verts);
+    faceNormArray = new VArray(totalSize, 3, norms);
 }
 
 Chunk::Chunk(ivec3 coordinate) : coordinate(coordinate)
@@ -1002,6 +1008,8 @@ void Chunk::GenChunkLevel(int level)
 
 void Chunk::Gen(Generator* gen)
 {
+    if (gen->IsChunkEmpty(coordinate))
+        return;
     for(int x = 0; x < CHUNK_SPAN; x++)
         for(int y = 0; y < CHUNK_SPAN; y++)
             for (int z = 0; z < CHUNK_SPAN; z++)

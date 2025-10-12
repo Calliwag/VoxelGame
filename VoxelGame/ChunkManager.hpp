@@ -35,5 +35,7 @@ public:
 	void UpdateList(vec3 pos, float radius, float verticalRadius);
 	void UnloadDistant(vec3 pos, float radius, float verticalRadius);
 	void GenerateOne(vec3 pos);
+
+	ivec3 GetLastEmptyBlockOnRay(vec3 start, vec3 end, bool& success);
 };
 

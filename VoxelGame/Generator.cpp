@@ -25,7 +25,10 @@ u8 WaveGen::GenBlock(ivec3 chunkOffset, ivec3 blockOffset)
     int level = amplitude * (xComp + yComp) / 2.f + baseLevel;
     int relLevel = level - chunkOffset.z;
     if (blockOffset.z < relLevel)
-        return block;
+        if (blockOffset.z == relLevel - 1)
+            return 2;
+        else
+            return 1;
     return 0;
 }
 

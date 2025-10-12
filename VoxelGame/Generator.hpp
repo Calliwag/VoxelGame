@@ -30,9 +30,8 @@ public:
 	int amplitude;
 	float waveLengthX;
 	float waveLengthY;
-	u8 block;
 
-	WaveGen(u8 block, int baseLevel, int amplitude, float waveLengthX, float waveLengthY) : block(block), baseLevel(baseLevel), amplitude(amplitude), waveLengthX(waveLengthX), waveLengthY(waveLengthY) {}
+	WaveGen(int baseLevel, int amplitude, float waveLengthX, float waveLengthY) : baseLevel(baseLevel), amplitude(amplitude), waveLengthX(waveLengthX), waveLengthY(waveLengthY) {}
 
 	u8 GenBlock(ivec3 chunkOffset, ivec3 blockOffset) override;
 	bool IsChunkEmpty(ivec3 chunkOffset) override;

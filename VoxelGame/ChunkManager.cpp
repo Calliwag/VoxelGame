@@ -52,57 +52,109 @@ void ChunkManager::GenerateOne(vec3 pos)
 	ivec3 coord = toGenerateList.top() + toGenerateCenter;
 
 	Chunk chunk(coord);
-	chunk.Gen(gen);
+	bool empty = !chunk.Gen(gen);
 	chunk.GenFaceGrids();
 
-	if (chunks.contains(coord + ivec3{ 1,0,0 }))
+	if (!empty)
 	{
-		auto& neighbor = chunks.at(coord + ivec3{ 1,0,0 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
-	}
-	if (chunks.contains(coord + ivec3{ -1,0,0 }))
-	{
-		auto& neighbor = chunks.at(coord + ivec3{ -1,0,0 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
-	}
+		if (chunks.contains(coord + ivec3{ 1,0,0 }))
+		{
+			auto& neighbor = chunks.at(coord + ivec3{ 1,0,0 });
+			chunk.CheckNeighborFaces(&neighbor);
+			neighbor.CheckNeighborFaces(&chunk);
+			neighbor.GenFacesGreedy();
+		}
+		if (chunks.contains(coord + ivec3{ -1,0,0 }))
+		{
+			auto& neighbor = chunks.at(coord + ivec3{ -1,0,0 });
+			chunk.CheckNeighborFaces(&neighbor);
+			neighbor.CheckNeighborFaces(&chunk);
+			neighbor.GenFacesGreedy();
+		}
 
-	if (chunks.contains(coord + ivec3{ 0,1,0 }))
-	{
-		auto& neighbor = chunks.at(coord + ivec3{ 0,1,0 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
-	}
-	if (chunks.contains(coord + ivec3{ 0,-1,0 }))
-	{
-		auto& neighbor = chunks.at(coord + ivec3{ 0,-1,0 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
-	}
+		if (chunks.contains(coord + ivec3{ 0,1,0 }))
+		{
+			auto& neighbor = chunks.at(coord + ivec3{ 0,1,0 });
+			chunk.CheckNeighborFaces(&neighbor);
+			neighbor.CheckNeighborFaces(&chunk);
+			neighbor.GenFacesGreedy();
+		}
+		if (chunks.contains(coord + ivec3{ 0,-1,0 }))
+		{
+			auto& neighbor = chunks.at(coord + ivec3{ 0,-1,0 });
+			chunk.CheckNeighborFaces(&neighbor);
+			neighbor.CheckNeighborFaces(&chunk);
+			neighbor.GenFacesGreedy();
+		}
 
-	if (chunks.contains(coord + ivec3{ 0,0,1 }))
-	{
-		auto& neighbor = chunks.at(coord + ivec3{ 0,0,1 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
-	}
-	if (chunks.contains(coord + ivec3{ 0,0,-1 }))
-	{
-		auto& neighbor = chunks.at(coord + ivec3{ 0,0,-1 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
-	}
+		if (chunks.contains(coord + ivec3{ 0,0,1 }))
+		{
+			auto& neighbor = chunks.at(coord + ivec3{ 0,0,1 });
+			chunk.CheckNeighborFaces(&neighbor);
+			neighbor.CheckNeighborFaces(&chunk);
+			neighbor.GenFacesGreedy();
+		}
+		if (chunks.contains(coord + ivec3{ 0,0,-1 }))
+		{
+			auto& neighbor = chunks.at(coord + ivec3{ 0,0,-1 });
+			chunk.CheckNeighborFaces(&neighbor);
+			neighbor.CheckNeighborFaces(&chunk);
+			neighbor.GenFacesGreedy();
+		}
 
-	chunk.GenFacesGreedy();
+		chunk.GenFacesGreedy();
+	}
 
 	chunks.insert({ coord, chunk });
-	//toGenerateList.remove(coord);
 	toGenerateList.pop();
+}
+
+ivec3 ChunkManager::GetLastEmptyBlockOnRay(vec3 start, vec3 end, bool& success)
+{
+	float dx = end.x - start.x;
+	float dy = end.y - start.y;
+	float dz = end.z - start.z;
+
+	float step;
+
+	if (abs(dx) >= abs(dy) && abs(dx) >= abs(dz))
+	{
+		step = abs(dx);
+	}
+	else if (abs(dy) >= abs(dz))
+	{
+		step = abs(dy);
+	}
+	else
+	{
+		step = abs(dz);
+	}
+
+	dx /= step;
+	dy /= step;
+	dz /= step;
+
+	vec3 pos = start;
+	int i = 0;
+	while (i < step)
+	{
+		ivec3 cPos = glm::floor(pos / (float)CHUNK_SPAN);
+		if (!chunks.contains(cPos))
+		{
+			success = false;
+			return ivec3();
+		}
+		Chunk& chunk = chunks.at(cPos);
+		ivec3 bPos = glm::mod(pos, (float)CHUNK_SPAN);
+		auto& type = chunk.data.At(bPos);
+		if (type != 0)
+		{
+			success = true;
+			pos -= vec3{dx, dy, dz};
+			return pos;
+		}
+		pos += vec3{ dx,dy,dz };
+		i++;
+	}
+	success = false;
 }

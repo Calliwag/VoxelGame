@@ -8,13 +8,6 @@
 #include "SimView/SimView.hpp"
 #include "Generator.hpp"
 
-typedef std::uint8_t u8;
-typedef std::uint8_t u16;
-typedef std::uint8_t u32;
-typedef std::int8_t i8;
-typedef std::int8_t i16;
-typedef std::int8_t i32;
-
 using namespace glm;
 using namespace SimView;
 
@@ -53,8 +46,10 @@ public:
 	void GenFacesSimple();
 	void GenFacesGreedy();
 
-	VArray* faceVertArray;
-	VArray* faceNormArray;
+	VArray<float> faceVertArray;
+	VArray<int> faceNormArray;
+	VArray<float> faceUVArray;
+	VArray<int> faceTypeArray;
 	int faceCount;
 	bool arraysGenerated = false;
 	void GenArrays();
@@ -64,7 +59,7 @@ public:
 	~Chunk();
 	void TestGenChunk();
 	void GenChunkLevel(int level);
-	void Gen(Generator* gen);
+	bool Gen(Generator* gen);
 
 	u8 GetData(ivec3 coord);
 

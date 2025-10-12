@@ -10,7 +10,6 @@ class Renderer
 {
 public:
 	ShaderProgram blockShader;
-	VArray chunkVertices;
 	Frustum frustum;
 
 	GLint matrixLoc;
@@ -18,6 +17,8 @@ public:
 	GLint posLoc;
 	GLint normLoc;
 	GLint lightDirLoc;
+	GLint blockTypeLoc;
+	GLint uvLoc;
 
 	Renderer();
 

@@ -133,10 +133,9 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SimView\Bitmap.cpp" />
     <ClCompile Include="SimView\Core.cpp" />
-    <ClCompile Include="SimView\IArray.cpp" />
+    <ClCompile Include="SimView\IndexArray.cpp" />
     <ClCompile Include="SimView\ShaderProgram.cpp" />
     <ClCompile Include="SimView\Texture.cpp" />
-    <ClCompile Include="SimView\VArray.cpp" />
     <ClCompile Include="SimView\Window.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

@@ -13,102 +13,127 @@ using namespace SimView;
 
 int main()
 {
-    std::cout << "Hello World!\n";
-
-    Core::Init();
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    Window window(400, 400, "VoxelGame");
-    glEnable(GL_MULTISAMPLE);
-    window.SetBlendMode(BlendMode::Alpha);
-    window.BeginContext();
-
-    Renderer r;
-    //Generator* gen = new FlatGen(-8, 1);
-    Generator* gen = new WaveGen(1, -8, 8, 128, 128);
-    ChunkManager cm(gen);
-
-    int chunksPerFrame = 10;
-    int updateListInterval = 10;
-    float radius = 1024;
-    float vRadius = 128;
-    float drawRadius = 1024;
-
-    int frame = 0;
-    vec3 pos = { .5,.5, 8 };
-    vec3 dir = { 1,0,0 };
-    float hAngle = 0;
-    float vAngle = 0;
-    float angleSpeed = 1;
-    float moveSpeed = 8;
-    bool genNew = true;
-    float lHAngle = 3.1416 / 6.f;
-    float lVAngle = -3.1416 / 4.f;
-
-    while (!window.ShouldClose())
+    try
     {
-        window.BeginFrame();
-        window.PollEvents();
-        window.FillScreen(Color::Black(1.0f));
+        std::cout << "Hello World!\n";
 
-        vec2 hDir = { cos(hAngle),sin(hAngle) };
-        vec3 dir = { hDir.x * cos(vAngle),hDir.y * cos(vAngle),sin(vAngle) };
-        vec2 lHDir = { cos(lHAngle), sin(lHAngle) };
-        vec3 lightDir = { lHDir.x * cos(lVAngle), lHDir.y * cos(lVAngle), sin(lVAngle) };
-        r.Update(pos, dir, 3.1416 / 2, window.width, window.height, lightDir);
+        Core::Init();
+        glfwWindowHint(GLFW_SAMPLES, 4);
+        Window window(400, 400, "VoxelGame");
+        glEnable(GL_MULTISAMPLE);
+        window.SetBlendMode(BlendMode::Alpha);
+        window.BeginContext();
 
-        vec3 iPos = pos / (float)CHUNK_SPAN;
-        float iRadius = drawRadius / (float)CHUNK_SPAN;
-        for (auto& chunk : cm.chunks)
+        Renderer r;
+        //Generator* gen = new FlatGen(-8, 1);
+        Generator* gen = new WaveGen(-8, 8, 128, 128);
+        ChunkManager cm(gen);
+
+        int chunksPerFrame = 10;
+        int updateListInterval = 60;
+        float radius = 128;
+        float vRadius = 128;
+        float drawRadius = 128;
+
+        int frame = 0;
+        vec3 pos = { .5,.5, 0 };
+        vec3 vel = { 0, 0, 0 };
+        vec3 cameraOffset = { 0,0,1.5 };
+        vec3 dir = { 1,0,0 };
+        float hAngle = 0;
+        float vAngle = 0;
+        float angleSpeed = 1;
+        float moveSpeed = 8;
+        bool genNew = true;
+        float lHAngle = 3.1416 / 6.f;
+        float lVAngle = -3.1416 / 4.f;
+
+        while (!window.ShouldClose())
         {
-            if(length((vec3)chunk.second.coordinate - iPos) < iRadius)
-                r.DrawChunk(chunk.second);
-        }
+            window.BeginFrame();
+            window.PollEvents();
+            window.FillScreen(Color::Black(1.0f));
 
-        window.EndFrame();
+            vec2 hDir = { cos(hAngle),sin(hAngle) };
+            vec3 dir = { hDir.x * cos(vAngle),hDir.y * cos(vAngle),sin(vAngle) };
+            vec2 lHDir = { cos(lHAngle), sin(lHAngle) };
+            vec3 lightDir = { lHDir.x * cos(lVAngle), lHDir.y * cos(lVAngle), sin(lVAngle) };
+            r.Update(pos + cameraOffset, dir, 3.1416 / 2, window.width, window.height, lightDir);
 
-        if (genNew && frame % updateListInterval == 0)
-        {
-            cm.UpdateList(pos, radius, vRadius);
-            cm.UnloadDistant(pos, radius, vRadius);
-        }
-        if (genNew && frame % 1 == 0)
-        {
-            for (int i = 0; i < chunksPerFrame; i++)
+            vec3 iPos = pos / (float)CHUNK_SPAN;
+            float iRadius = drawRadius / (float)CHUNK_SPAN;
+            for (auto& chunk : cm.chunks)
             {
-                cm.GenerateOne(pos);
+                //if (length((vec3)chunk.second.coordinate - iPos) < iRadius)
+                r.DrawChunk(chunk.second);
+            }
+
+            window.EndFrame();
+
+            if (genNew && frame % updateListInterval == 0)
+            {
+                cm.UpdateList(pos, radius, vRadius);
+                cm.UnloadDistant(pos, radius, vRadius);
+            }
+            if (genNew && frame % 1 == 0)
+            {
+                for (int i = 0; i < chunksPerFrame; i++)
+                {
+                    cm.GenerateOne(pos);
+                }
+            }
+
+            vel.x = 0;
+            vel.y = 0;
+            if (window.IsKeyDown(GLFW_KEY_LEFT))
+                hAngle += angleSpeed * window.frameTime;
+            if (window.IsKeyDown(GLFW_KEY_RIGHT))
+                hAngle -= angleSpeed * window.frameTime;
+            if (window.IsKeyDown(GLFW_KEY_UP))
+                vAngle += angleSpeed * window.frameTime;
+            if (window.IsKeyDown(GLFW_KEY_DOWN))
+                vAngle -= angleSpeed * window.frameTime;
+            if (window.IsKeyDown(GLFW_KEY_W))
+                vel += vec3{ hDir.x,hDir.y,0 } * moveSpeed;
+            if (window.IsKeyDown(GLFW_KEY_S))
+                vel -= vec3{ hDir.x,hDir.y,0 } * moveSpeed;
+            if (window.IsKeyDown(GLFW_KEY_A))
+                vel += vec3{ -hDir.y,hDir.x,0 } * moveSpeed;
+            if (window.IsKeyDown(GLFW_KEY_D))
+                vel -= vec3{ -hDir.y,hDir.x,0 } * moveSpeed;
+            if (window.IsKeyPressed(GLFW_KEY_SPACE))
+            {
+                genNew = !genNew;
+                std::cout << "press\n";
+            }
+
+            vAngle = glm::clamp(vAngle, -3.1415f / 2.f, 3.1415f / 2.f);
+
+            std::cout << "FPS: " << window.GetFPS() << ", chunks to generate: " << cm.toGenerateList.size() << '\n';
+            frame++;
+
+            vel.z -= 9.8 * glm::min((float)window.frameTime, 1.f);
+            vec3 oldPos = pos;
+            pos += vel * glm::min((float)window.frameTime,1.f);
+            bool success;
+            vec3 start = oldPos + vec3{0, 0, 2};
+            vec3 end = pos - vec3{ 0,0,2 };
+            ivec3 gPos = cm.GetLastEmptyBlockOnRay(start, end, success);
+            if (success && gPos.z > pos.z)
+            {
+                pos.z = gPos.z;
+                vel.z = 0;
             }
         }
 
-        if (window.IsKeyDown(GLFW_KEY_LEFT))
-            hAngle += angleSpeed * window.frameTime;
-        if (window.IsKeyDown(GLFW_KEY_RIGHT))
-            hAngle -= angleSpeed * window.frameTime;
-        if (window.IsKeyDown(GLFW_KEY_UP))
-            vAngle += angleSpeed * window.frameTime;
-        if (window.IsKeyDown(GLFW_KEY_DOWN))
-            vAngle -= angleSpeed * window.frameTime;
-        if (window.IsKeyDown(GLFW_KEY_W))
-            pos += vec3{ hDir.x,hDir.y,0 } *moveSpeed * (float)window.frameTime;
-        if (window.IsKeyDown(GLFW_KEY_S))
-            pos -= vec3{ hDir.x,hDir.y,0 } *moveSpeed * (float)window.frameTime;
-        if (window.IsKeyDown(GLFW_KEY_A))
-            pos += vec3{ -hDir.y,hDir.x,0 } *moveSpeed * (float)window.frameTime;
-        if (window.IsKeyDown(GLFW_KEY_D))
-            pos -= vec3{ -hDir.y,hDir.x,0 } *moveSpeed * (float)window.frameTime;
-        if (window.IsKeyPressed(GLFW_KEY_SPACE))
-        {
-            genNew = !genNew;
-            std::cout << "press\n";
-        }
-
-        vAngle = glm::clamp(vAngle, -3.1415f / 2.f, 3.1415f / 2.f);
-
-        std::cout << "FPS: " << window.GetFPS() << ", chunks to generate: " << cm.toGenerateList.size() << '\n';
-        frame++;
+        window.EndContext();
+        window.Destroy();
+        Core::DeInit();
     }
-
-    window.EndContext();
-    window.Destroy();
-    Core::DeInit();
+    catch (std::exception& err)
+    {
+        std::cout << err.what();
+        return 1;
+    }
     return 0;
 }

@@ -70,6 +70,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -136,8 +142,8 @@
     <ClCompile Include="SimView\IndexArray.cpp" />
     <ClCompile Include="SimView\ShaderProgram.cpp" />
     <ClCompile Include="SimView\Texture.cpp" />
-    <ClCompile Include="SimView\Window.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SimView\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Chunk.hpp" />
@@ -149,6 +155,15 @@
     <ClInclude Include="Plane.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="SimView\SimView.hpp" />
+    <ClInclude Include="SimView\stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\dirt_test_side.bmp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </Image>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

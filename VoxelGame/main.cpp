@@ -11,6 +11,11 @@
 using namespace glm;
 using namespace SimView;
 
+void DrawToAtlas(Bitmap& atlas, Bitmap& tex, int blockType, int blockFace)
+{
+    atlas.DrawBitmap(16 * blockType, 16 * blockFace, tex);
+}
+
 int main()
 {
     try
@@ -21,19 +26,48 @@ int main()
         glfwWindowHint(GLFW_SAMPLES, 4);
         Window window(400, 400, "VoxelGame");
         glEnable(GL_MULTISAMPLE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         window.SetBlendMode(BlendMode::Alpha);
         window.BeginContext();
 
-        Renderer r;
-        //Generator* gen = new FlatGen(-8, 1);
-        Generator* gen = new WaveGen(-8, 8, 128, 128);
+        int blockCount = 3;
+        Bitmap atlasImg = Bitmap::GetColorImage(16 * blockCount, 16 * 6, Color{0,0,0,255});
+        {
+            auto bottom = Bitmap::FromFile("Assets/dirt_test_bottom.bmp");
+            auto top = Bitmap::FromFile("Assets/dirt_test_top.bmp");
+            auto side = Bitmap::FromFile("Assets/dirt_test_side.bmp");
+            DrawToAtlas(atlasImg, bottom, 1, 0);
+            DrawToAtlas(atlasImg, top, 1, 1);
+            DrawToAtlas(atlasImg, side, 1, 2);
+            DrawToAtlas(atlasImg, side, 1, 3);
+            DrawToAtlas(atlasImg, side, 1, 4);
+            DrawToAtlas(atlasImg, side, 1, 5);
+        }
+        {
+            auto bottom = Bitmap::FromFile("Assets/grass_test_bottom.bmp");
+            auto top = Bitmap::FromFile("Assets/grass_test_top.bmp");
+            auto side = Bitmap::FromFile("Assets/grass_test_side.bmp");
+            DrawToAtlas(atlasImg, bottom, 2, 0);
+            DrawToAtlas(atlasImg, top, 2, 1);
+            DrawToAtlas(atlasImg, side, 2, 2);
+            DrawToAtlas(atlasImg, side, 2, 3);
+            DrawToAtlas(atlasImg, side, 2, 4);
+            DrawToAtlas(atlasImg, side, 2, 5);
+        }
+
+        Texture atlasTex = Texture::FromBitmap(atlasImg);
+        atlasTex.GenMipmaps(4, -1.0);
+
+        Renderer r(atlasTex);
+        Generator* gen = new WaveGen(0, 8, 128, 128);
         ChunkManager cm(gen);
 
         int chunksPerFrame = 10;
         int updateListInterval = 60;
-        float radius = 128;
+        float radius = 256;
         float vRadius = 128;
-        float drawRadius = 128;
+        float drawRadius = 256;
 
         int frame = 0;
         vec3 pos = { .5,.5, 0 };
@@ -47,12 +81,13 @@ int main()
         bool genNew = true;
         float lHAngle = 3.1416 / 6.f;
         float lVAngle = -3.1416 / 4.f;
-
+        bool mouseLock = false;
+        float mouseSensitivity = 0.01;
         while (!window.ShouldClose())
         {
             window.BeginFrame();
             window.PollEvents();
-            window.FillScreen(Color::Black(1.0f));
+            window.FillScreen({ 135, 206, 235, 255 });
 
             vec2 hDir = { cos(hAngle),sin(hAngle) };
             vec3 dir = { hDir.x * cos(vAngle),hDir.y * cos(vAngle),sin(vAngle) };
@@ -64,7 +99,6 @@ int main()
             float iRadius = drawRadius / (float)CHUNK_SPAN;
             for (auto& chunk : cm.chunks)
             {
-                //if (length((vec3)chunk.second.coordinate - iPos) < iRadius)
                 r.DrawChunk(chunk.second);
             }
 
@@ -85,14 +119,23 @@ int main()
 
             vel.x = 0;
             vel.y = 0;
-            if (window.IsKeyDown(GLFW_KEY_LEFT))
-                hAngle += angleSpeed * window.frameTime;
-            if (window.IsKeyDown(GLFW_KEY_RIGHT))
-                hAngle -= angleSpeed * window.frameTime;
-            if (window.IsKeyDown(GLFW_KEY_UP))
-                vAngle += angleSpeed * window.frameTime;
-            if (window.IsKeyDown(GLFW_KEY_DOWN))
-                vAngle -= angleSpeed * window.frameTime;
+            if(mouseLock)
+            {
+                hAngle -= window.mouseDelta.x * mouseSensitivity;
+                vAngle -= window.mouseDelta.y * mouseSensitivity;
+                window.mouseDelta = { 0,0 };
+            }
+            else
+            {
+                if (window.IsKeyDown(GLFW_KEY_LEFT))
+                    hAngle += angleSpeed * window.frameTime;
+                if (window.IsKeyDown(GLFW_KEY_RIGHT))
+                    hAngle -= angleSpeed * window.frameTime;
+                if (window.IsKeyDown(GLFW_KEY_UP))
+                    vAngle += angleSpeed * window.frameTime;
+                if (window.IsKeyDown(GLFW_KEY_DOWN))
+                    vAngle -= angleSpeed * window.frameTime;
+            }
             if (window.IsKeyDown(GLFW_KEY_W))
                 vel += vec3{ hDir.x,hDir.y,0 } * moveSpeed;
             if (window.IsKeyDown(GLFW_KEY_S))
@@ -101,10 +144,24 @@ int main()
                 vel += vec3{ -hDir.y,hDir.x,0 } * moveSpeed;
             if (window.IsKeyDown(GLFW_KEY_D))
                 vel -= vec3{ -hDir.y,hDir.x,0 } * moveSpeed;
-            if (window.IsKeyPressed(GLFW_KEY_SPACE))
+
+            if (window.IsKeyPressed(GLFW_KEY_G))
             {
                 genNew = !genNew;
                 std::cout << "press\n";
+            }
+            if (window.IsKeyPressed(GLFW_KEY_RIGHT_CONTROL))
+            {
+                if (mouseLock)
+                {
+                    window.UnlockMouse();
+                    mouseLock = false;
+                }
+                else
+                {
+                    window.LockMouse();
+                    mouseLock = true;
+                }
             }
 
             vAngle = glm::clamp(vAngle, -3.1415f / 2.f, 3.1415f / 2.f);
@@ -112,17 +169,35 @@ int main()
             std::cout << "FPS: " << window.GetFPS() << ", chunks to generate: " << cm.toGenerateList.size() << '\n';
             frame++;
 
-            vel.z -= 9.8 * glm::min((float)window.frameTime, 1.f);
-            vec3 oldPos = pos;
-            pos += vel * glm::min((float)window.frameTime,1.f);
+            vel.z -= 9.8 * (float)window.frameTime;
+            vec3 newPos = pos + vel * (float)window.frameTime;
             bool success;
-            vec3 start = oldPos + vec3{0, 0, 2};
-            vec3 end = pos - vec3{ 0,0,2 };
+            vec3 start = newPos + vec3{ 0,0,2 };
+            vec3 end = newPos - vec3{ 0,0,2 };
             ivec3 gPos = cm.GetLastEmptyBlockOnRay(start, end, success);
-            if (success && gPos.z > pos.z)
+            if (success)
             {
-                pos.z = gPos.z;
-                vel.z = 0;
+                float groundLevel = gPos.z;
+
+                if (newPos.z < groundLevel)
+                {
+                    pos.z = groundLevel;
+                    vel.z = 0;
+                    pos.x = newPos.x;
+                    pos.y = newPos.y;
+                    if (window.IsKeyPressed(GLFW_KEY_SPACE))
+                    {
+                        vel.z = 10;
+                    }
+                }
+                else
+                {
+                    pos = newPos;
+                }
+            }
+            else
+            {
+                pos = newPos;
             }
         }
 
@@ -133,7 +208,7 @@ int main()
     catch (std::exception& err)
     {
         std::cout << err.what();
-        return 1;
+        throw err;
     }
     return 0;
 }

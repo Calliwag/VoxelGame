@@ -12,14 +12,14 @@ uniform mat4 matrix;
 uniform vec3 offset;
 uniform vec3 lightDir;
 
-out vec2 faceLookup;
+flat out ivec2 faceLookup;
 out float lightValue;
 out vec2 fUV;
 
 void main()
 {
 	gl_Position = matrix * vec4(offset + pos,1);
-    faceLookup = vec2(blockType, normIdx); // x = block type, y = block face
+    faceLookup = ivec2(blockType, normIdx); // x = block type, y = block face
     vec3 norm = vec3(0,0,0);
     switch (normIdx)
     {
@@ -53,34 +53,37 @@ void main()
 
 const char* fragmentShader = /* fragment shader:*/ R"(
 #version 460 core
+#extension GL_ARB_texture_query_lod : enable
 
-in vec2 faceLookup; // x = block type, y = block face
+flat in ivec2 faceLookup; // x = block type, y = block face
 in float lightValue;
 in vec2 fUV;
 
+uniform sampler2D atlas;
+
 out vec4 FragColor;
 
-float Value(float val)
+vec4 SampleTextureWithCoord(sampler2D tex, vec2 coord)
 {
-    if(abs(val - 1.0) <= 0.1) return 1.0;
-    if(abs(val - 0.0) <= 0.1) return 0.0;
-    return 0.5;
+    ivec2 size = textureSize(tex, 0);
+    vec2 fCoord = vec2(coord.x / float(size.x), coord.y / float(size.y));
+    float lod = textureQueryLOD(tex, 16.0 *  (fUV + vec2(faceLookup)) / vec2(size)).x;
+    return textureLod(tex, fCoord, lod);
 }
 
 void main()
 {
-    //FragColor = vec4(1,1,1,1) * vec4(lightValue,lightValue,lightValue,1.0);
-    //FragColor = vec4(Value(faceLookup.y), Value(faceLookup.y - 2), Value(faceLookup.y - 4), 1);
-    FragColor = vec4(mod(fUV.x,1.0),mod(fUV.y,1.0),0,1) * vec4(lightValue,lightValue,lightValue,1.0);
+    vec2 texCoord = vec2(16.0 * mod(fUV.x,1.0),16.0 * mod(fUV.y,1.0)) + 16.0 * faceLookup;
+    FragColor = SampleTextureWithCoord(atlas,texCoord) * vec4(lightValue,lightValue,lightValue,1.0);
 }
 
 )";
 
-Renderer::Renderer()
+Renderer::Renderer(const Texture& atlasTex)
 {
     blockShader = ShaderProgram(vertexShader, fragmentShader, false,
-        { "matrix","offset","lightDir"}, // Uniforms
-        { "pos","normIdx","blockType","uv"}  // Attributes
+        { "matrix","offset","lightDir","atlas"}, // Uniforms
+        { "pos","normIdx","blockType","uv" }  // Attributes
     );
     blockShader.BindProgram();
 
@@ -91,6 +94,9 @@ Renderer::Renderer()
     uvLoc = blockShader.GetVarLoc("uv");
     lightDirLoc = blockShader.GetVarLoc("lightDir");
     blockTypeLoc = blockShader.GetVarLoc("blockType");
+    atlasLoc = blockShader.GetVarLoc("atlas");
+
+    blockShader.BindTexture(atlasTex);
 
     // Depth buffer
     glEnable(GL_DEPTH_TEST);
@@ -108,10 +114,10 @@ Renderer::Renderer()
 void Renderer::Update(vec3 pos, vec3 dir, float fovY, float width, float height, vec3 lightDir)
 {
     vec3 up = { 0,0,1 };
-    mat4x4 matrix = glm::perspective(3.1416f / 2, width / height, 0.001f, 1000.0f) * glm::lookAt(pos, pos + dir, up);
+    mat4x4 matrix = glm::perspective(3.1416f / 2, width / height, 0.1f, 1000.0f) * glm::lookAt(pos, pos + dir, up);
     blockShader.BindMat4x4(matrix, matrixLoc);
     blockShader.BindVec3(lightDir, lightDirLoc);
-    frustum = Frustum(pos, dir, 0.001f, 1000.0f, fovY, width / height);
+    frustum = Frustum(pos, dir, 0.1f, 1000.0f, fovY, width / height);
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 

@@ -116,45 +116,52 @@ ivec3 ChunkManager::GetLastEmptyBlockOnRay(vec3 start, vec3 end, bool& success)
 	float dz = end.z - start.z;
 
 	float step;
-
 	if (abs(dx) >= abs(dy) && abs(dx) >= abs(dz))
-	{
 		step = abs(dx);
-	}
 	else if (abs(dy) >= abs(dz))
-	{
 		step = abs(dy);
-	}
 	else
-	{
 		step = abs(dz);
-	}
+
+	//step *= 2.0f;
 
 	dx /= step;
 	dy /= step;
 	dz /= step;
 
 	vec3 pos = start;
-	int i = 0;
-	while (i < step)
+	vec3 lastEmpty = start;
+
+	for (int i = 0; i <= step; i++)
 	{
-		ivec3 cPos = glm::floor(pos / (float)CHUNK_SPAN);
+		ivec3 blockPos = glm::floor(pos);
+		ivec3 cPos = glm::floor(vec3(blockPos) / (float)CHUNK_SPAN);
+
 		if (!chunks.contains(cPos))
 		{
 			success = false;
 			return ivec3();
 		}
+
 		Chunk& chunk = chunks.at(cPos);
-		ivec3 bPos = glm::mod(pos, (float)CHUNK_SPAN);
+
+		ivec3 bPos = {
+			((blockPos.x % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
+			((blockPos.y % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
+			((blockPos.z % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN
+		};
+
 		auto& type = chunk.data.At(bPos);
+
 		if (type != 0)
 		{
 			success = true;
-			pos -= vec3{dx, dy, dz};
-			return pos;
+			return glm::floor(lastEmpty);
 		}
-		pos += vec3{ dx,dy,dz };
-		i++;
+
+		lastEmpty = pos;
+		pos += vec3{ dx, dy, dz };
 	}
 	success = false;
+	return vec3();
 }

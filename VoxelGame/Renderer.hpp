@@ -19,8 +19,9 @@ public:
 	GLint lightDirLoc;
 	GLint blockTypeLoc;
 	GLint uvLoc;
+	GLint atlasLoc;
 
-	Renderer();
+	Renderer(const Texture& atlasTex);
 
 	void Update(vec3 pos, vec3 dir, float fovY, float width, float height, vec3 lightDir);
 

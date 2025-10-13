@@ -28,7 +28,7 @@ public:
 	std::unordered_map<ivec3, Chunk> chunks = {};
 	//list<ivec3> toGenerateList = {};
 	priority_queue<ivec3, std::vector<ivec3>, Compare> toGenerateList = {};
-	ivec3 toGenerateCenter;
+	ivec3 toGenerateCenter = { 0,0,0 };
 	Generator* gen;
 
 	ChunkManager(Generator* gen) : gen(gen) {}

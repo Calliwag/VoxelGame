@@ -214,7 +214,7 @@ void Chunk::GenFacesSimple()
                 auto& nxyType = nxyFaceGrid.At(iPos);
                 if(nxyType != 0)
                 {
-                    ivec3* verts = new ivec3[]
+                    vec3* verts = new vec3[]
                     {
                         iPos + ivec3{ 0,0,0 },
                         iPos + ivec3{ 1,0,0 },
@@ -228,7 +228,7 @@ void Chunk::GenFacesSimple()
                 auto& pxyType = pxyFaceGrid.At(iPos);
                 if (pxyType != 0)
                 {
-                    ivec3* verts = new ivec3[]
+                    vec3* verts = new vec3[]
                     {
                         iPos + ivec3{ 0,0,1 },
                         iPos + ivec3{ 1,0,1 },
@@ -242,7 +242,7 @@ void Chunk::GenFacesSimple()
                 auto& nyzType = nyzFaceGrid.At(iPos);
                 if (nyzType != 0)
                 {
-                    ivec3* verts = new ivec3[]
+                    vec3* verts = new vec3[]
                     {
                         iPos + ivec3{ 0,0,0 },
                         iPos + ivec3{ 0,1,0 },
@@ -256,7 +256,7 @@ void Chunk::GenFacesSimple()
                 auto& pyzType = pyzFaceGrid.At(iPos);
                 if (pyzType != 0)
                 {
-                    ivec3* verts = new ivec3[]
+                    vec3* verts = new vec3[]
                     {
                         iPos + ivec3{ 1,0,0 },
                         iPos + ivec3{ 1,1,0 },
@@ -270,7 +270,7 @@ void Chunk::GenFacesSimple()
                 auto& nxzType = nxzFaceGrid.At(iPos);
                 if (nxzType != 0)
                 {
-                    ivec3* verts = new ivec3[]
+                    vec3* verts = new vec3[]
                     {
                         iPos + ivec3{ 0,0,0 },
                         iPos + ivec3{ 1,0,0 },
@@ -284,7 +284,7 @@ void Chunk::GenFacesSimple()
                 auto& pxzType = pxzFaceGrid.At(iPos);
                 if (pxzType != 0)
                 {
-                    ivec3* verts = new ivec3[]
+                    vec3* verts = new vec3[]
                     {
                         iPos + ivec3{ 0,1,0 },
                         iPos + ivec3{ 1,1,0 },
@@ -380,7 +380,7 @@ void Chunk::GenFacesGreedy()
             rectX -= 1;
             rectY -= 1;
 
-            ivec3* verts = new ivec3[]
+            vec3* verts = new vec3[]
             {
                 corner + ivec3{ 0,0,0 },
                 corner + ivec3{ rectX + 1,0,0 },
@@ -464,7 +464,7 @@ void Chunk::GenFacesGreedy()
             rectX -= 1;
             rectY -= 1;
 
-            ivec3* verts = new ivec3[]
+            vec3* verts = new vec3[]
             {
                 corner + ivec3{ 0,0,1 },
                 corner + ivec3{ 0,rectY + 1,1 },
@@ -548,7 +548,7 @@ void Chunk::GenFacesGreedy()
             rectY -= 1;
             rectZ -= 1;
 
-            ivec3* verts = new ivec3[]
+            vec3* verts = new vec3[]
             {
                 corner + ivec3{ 0,0,0 },
                 corner + ivec3{ 0,rectY + 1,0 },
@@ -632,7 +632,7 @@ void Chunk::GenFacesGreedy()
             rectY -= 1;
             rectZ -= 1;
 
-            ivec3* verts = new ivec3[]
+            vec3* verts = new vec3[]
             {
                 corner + ivec3{ 1,0,0 },
                 corner + ivec3{ 1,0,rectZ + 1 },
@@ -716,7 +716,7 @@ void Chunk::GenFacesGreedy()
             rectX -= 1;
             rectZ -= 1;
 
-            ivec3* verts = new ivec3[]
+            vec3* verts = new vec3[]
             {
                 corner + ivec3{ 0,0,0 },
                 corner + ivec3{ 0,0,rectZ + 1 },
@@ -800,7 +800,7 @@ void Chunk::GenFacesGreedy()
             rectX -= 1;
             rectZ -= 1;
 
-            ivec3* verts = new ivec3[]
+            vec3* verts = new vec3[]
             {
                 corner + ivec3{ 0,1,0 },
                 corner + ivec3{ rectX + 1,1,0 },
@@ -837,22 +837,22 @@ void Chunk::GenArrays()
         auto& c3 = face.verts[3];
 
         verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c0.x - c0.x,c0.y - c0.y };
+        uvs[vIndex + 0] = { c3.x - c0.x,c3.y - c0.y };
 
         verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c1.x - c0.x,c1.y - c0.y };
+        uvs[vIndex + 1] = { c2.x - c0.x,c2.y - c0.y };
 
         verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c2.x - c0.x,c2.y - c0.y };
+        uvs[vIndex + 2] = { c1.x - c0.x,c1.y - c0.y };
 
         verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c2.x - c0.x,c2.y - c0.y };
+        uvs[vIndex + 3] = { c1.x - c0.x,c1.y - c0.y };
 
         verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c3.x - c0.x,c3.y - c0.y };
+        uvs[vIndex + 4] = { c0.x - c0.x,c0.y - c0.y };
 
         verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c0.x - c0.x,c0.y - c0.y };
+        uvs[vIndex + 5] = { c3.x - c0.x,c3.y - c0.y };
 
         for (int i = 0; i < 6; i++)
         {
@@ -872,22 +872,22 @@ void Chunk::GenArrays()
         auto& c3 = face.verts[3];
 
         verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c0.x - c0.x, c0.y - c0.y };
+        uvs[vIndex + 0] = { c1.x - c0.x, c1.y - c0.y };
 
         verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c1.x - c0.x, c1.y - c0.y };
+        uvs[vIndex + 1] = { c0.x - c0.x, c0.y - c0.y };
 
         verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c2.x - c0.x, c2.y - c0.y };
+        uvs[vIndex + 2] = { c3.x - c0.x, c3.y - c0.y };
 
         verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c2.x - c0.x, c2.y - c0.y };
+        uvs[vIndex + 3] = { c3.x - c0.x, c3.y - c0.y };
 
         verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c3.x - c0.x, c3.y - c0.y };
+        uvs[vIndex + 4] = { c2.x - c0.x, c2.y - c0.y };
 
         verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c0.x - c0.x, c0.y - c0.y };
+        uvs[vIndex + 5] = { c1.x - c0.x, c1.y - c0.y };
 
         for (int i = 0; i < 6; i++)
         {
@@ -907,22 +907,22 @@ void Chunk::GenArrays()
         auto& c3 = face.verts[3];
 
         verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c0.y - c0.y, c0.z - c0.z };
+        uvs[vIndex + 0] = { c2.y - c0.y, c2.z - c0.z };
 
         verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c1.y - c0.y, c1.z - c0.z };
+        uvs[vIndex + 1] = { c3.y - c0.y, c3.z - c0.z };
 
         verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c2.y - c0.y, c2.z - c0.z };
+        uvs[vIndex + 2] = { c0.y - c0.y, c0.z - c0.z };
 
         verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c2.y - c0.y, c2.z - c0.z };
+        uvs[vIndex + 3] = { c0.y - c0.y, c0.z - c0.z };
 
         verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c3.y - c0.y, c3.z - c0.z };
+        uvs[vIndex + 4] = { c1.y - c0.y, c1.z - c0.z };
 
         verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c0.y - c0.y, c0.z - c0.z };
+        uvs[vIndex + 5] = { c2.y - c0.y, c2.z - c0.z };
 
         for (int i = 0; i < 6; i++)
         {
@@ -942,22 +942,22 @@ void Chunk::GenArrays()
         auto& c3 = face.verts[3];
 
         verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c3.y - c0.y, c3.z - c0.z };
+        uvs[vIndex + 0] = { c1.y - c0.y, c1.z - c0.z };
 
         verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c2.y - c0.y, c2.z - c0.z };
+        uvs[vIndex + 1] = { c0.y - c0.y, c0.z - c0.z };
 
         verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c1.y - c0.y, c1.z - c0.z };
+        uvs[vIndex + 2] = { c3.y - c0.y, c3.z - c0.z };
 
         verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c1.y - c0.y, c1.z - c0.z };
+        uvs[vIndex + 3] = { c3.y - c0.y, c3.z - c0.z };
 
         verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c0.y - c0.y, c0.z - c0.z };
+        uvs[vIndex + 4] = { c2.y - c0.y, c2.z - c0.z };
 
         verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c3.y - c0.y, c3.z - c0.z };
+        uvs[vIndex + 5] = { c1.y - c0.y, c1.z - c0.z };
 
         for (int i = 0; i < 6; i++)
         {
@@ -977,22 +977,22 @@ void Chunk::GenArrays()
         auto& c3 = face.verts[3];
 
         verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c3.x - c0.x, c3.z - c0.z };
+        uvs[vIndex + 0] = { c1.x - c0.x, c1.z - c0.z };
 
         verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c2.x - c0.x, c2.z - c0.z };
+        uvs[vIndex + 1] = { c0.x - c0.x, c0.z - c0.z };
 
         verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c1.x - c0.x, c1.z - c0.z };
+        uvs[vIndex + 2] = { c3.x - c0.x, c3.z - c0.z };
 
         verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c1.x - c0.x, c1.z - c0.z };
+        uvs[vIndex + 3] = { c3.x - c0.x, c3.z - c0.z };
 
         verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c0.x - c0.x, c0.z - c0.z };
+        uvs[vIndex + 4] = { c2.x - c0.x, c2.z - c0.z };
 
         verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c3.x - c0.x, c3.z - c0.z };
+        uvs[vIndex + 5] = { c1.x - c0.x, c1.z - c0.z };
 
         for (int i = 0; i < 6; i++)
         {
@@ -1012,22 +1012,22 @@ void Chunk::GenArrays()
         auto& c3 = face.verts[3];
 
         verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c0.x - c0.x, c0.z - c0.z };
+        uvs[vIndex + 0] = { c2.x - c0.x, c2.z - c0.z };
 
         verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c1.x - c0.x, c1.z - c0.z };
+        uvs[vIndex + 1] = { c3.x - c0.x, c3.z - c0.z };
 
         verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c2.x - c0.x, c2.z - c0.z };
+        uvs[vIndex + 2] = { c0.x - c0.x, c0.z - c0.z };
 
         verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c2.x - c0.x, c2.z - c0.z };
+        uvs[vIndex + 3] = { c0.x - c0.x, c0.z - c0.z };
 
         verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c3.x - c0.x, c3.z - c0.z };
+        uvs[vIndex + 4] = { c1.x - c0.x, c1.z - c0.z };
 
         verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c0.x - c0.x, c0.z - c0.z };
+        uvs[vIndex + 5] = { c2.x - c0.x, c2.z - c0.z };
 
         for (int i = 0; i < 6; i++)
         {
@@ -1037,6 +1037,7 @@ void Chunk::GenArrays()
         vIndex += 6;
     }
 
+    faceVertArray.Destroy();
     faceVertArray = VArray<float>(6 * faceCount, 3, (float*)verts);
     faceNormArray = VArray<int>(6 * faceCount, 1, norms);
     faceUVArray = VArray<float>(6 * faceCount, 2, (float*)uvs);

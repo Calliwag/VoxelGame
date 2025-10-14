@@ -22,6 +22,8 @@ public:
 	}
 };
 
+class RayIter;
+
 class ChunkManager
 {
 public:
@@ -35,7 +37,27 @@ public:
 	void UpdateList(vec3 pos, float radius, float verticalRadius);
 	void UnloadDistant(vec3 pos, float radius, float verticalRadius);
 	void GenerateOne(vec3 pos);
+	void MeshChunk(ivec3 coord);
+	void MeshChunkModified(ivec3 coord);
 
-	ivec3 GetLastEmptyBlockOnRay(vec3 start, vec3 end, bool& success);
+	RayIter GetRayIter(vec3 start, vec3 dir);
 };
 
+class RayIter
+{
+public:
+	ChunkManager& cm;
+	ivec3 pos;
+	ivec3 steps;
+	vec3 cellDist;
+	vec3 deltaDist;
+
+	// Important stuff
+	Chunk* chunk;
+	ivec3 blockCoord;
+	float faceDist;
+	int face;
+
+	RayIter(ChunkManager& cm, vec3 pos, vec3 dir);
+	void Next();
+};

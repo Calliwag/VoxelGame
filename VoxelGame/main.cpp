@@ -34,9 +34,9 @@ int main()
         int blockCount = 3;
         Bitmap atlasImg = Bitmap::GetColorImage(16 * blockCount, 16 * 6, Color{0,0,0,255});
         {
-            auto bottom = Bitmap::FromFile("Assets/dirt_test_bottom.bmp");
-            auto top = Bitmap::FromFile("Assets/dirt_test_top.bmp");
-            auto side = Bitmap::FromFile("Assets/dirt_test_side.bmp");
+            auto bottom = Bitmap::FromFile("Assets/dirt_bottom.bmp");
+            auto top = Bitmap::FromFile("Assets/dirt_top.bmp");
+            auto side = Bitmap::FromFile("Assets/dirt_side.bmp");
             DrawToAtlas(atlasImg, bottom, 1, 0);
             DrawToAtlas(atlasImg, top, 1, 1);
             DrawToAtlas(atlasImg, side, 1, 2);
@@ -45,9 +45,9 @@ int main()
             DrawToAtlas(atlasImg, side, 1, 5);
         }
         {
-            auto bottom = Bitmap::FromFile("Assets/grass_test_bottom.bmp");
-            auto top = Bitmap::FromFile("Assets/grass_test_top.bmp");
-            auto side = Bitmap::FromFile("Assets/grass_test_side.bmp");
+            auto bottom = Bitmap::FromFile("Assets/grass_bottom.bmp");
+            auto top = Bitmap::FromFile("Assets/grass_top.bmp");
+            auto side = Bitmap::FromFile("Assets/grass_side.bmp");
             DrawToAtlas(atlasImg, bottom, 2, 0);
             DrawToAtlas(atlasImg, top, 2, 1);
             DrawToAtlas(atlasImg, side, 2, 2);
@@ -65,9 +65,8 @@ int main()
 
         int chunksPerFrame = 10;
         int updateListInterval = 60;
-        float radius = 256;
-        float vRadius = 128;
-        float drawRadius = 256;
+        float radius = 32 * 16;
+        float vRadius = 4 * 16;
 
         int frame = 0;
         vec3 pos = { .5,.5, 0 };
@@ -96,7 +95,6 @@ int main()
             r.Update(pos + cameraOffset, dir, 3.1416 / 2, window.width, window.height, lightDir);
 
             vec3 iPos = pos / (float)CHUNK_SPAN;
-            float iRadius = drawRadius / (float)CHUNK_SPAN;
             for (auto& chunk : cm.chunks)
             {
                 r.DrawChunk(chunk.second);
@@ -145,6 +143,36 @@ int main()
             if (window.IsKeyDown(GLFW_KEY_D))
                 vel -= vec3{ -hDir.y,hDir.x,0 } * moveSpeed;
 
+            if (window.IsKeyPressed(GLFW_KEY_B))
+            {
+                auto rIter = cm.GetRayIter(pos + cameraOffset, dir);
+                bool found = false;
+                while(true)
+                {
+                    if (rIter.faceDist >= 4)
+                    {
+                        found = false;
+                        break;
+                    }
+                    if (rIter.chunk == nullptr)
+                    {
+                        found = false;
+                        break;
+                    }
+                    if (rIter.chunk->data.At(rIter.blockCoord) != 0)
+                    {
+                        found = true;
+                        break;
+                    }
+                    rIter.Next();
+                }
+                if (found)
+                {
+                    rIter.chunk->data.At(rIter.blockCoord) = 0;
+                    cm.MeshChunkModified(rIter.chunk->coordinate);
+                }
+            }
+
             if (window.IsKeyPressed(GLFW_KEY_G))
             {
                 genNew = !genNew;
@@ -171,13 +199,26 @@ int main()
 
             vel.z -= 9.8 * (float)window.frameTime;
             vec3 newPos = pos + vel * (float)window.frameTime;
-            bool success;
-            vec3 start = newPos + vec3{ 0,0,2 };
-            vec3 end = newPos - vec3{ 0,0,2 };
-            ivec3 gPos = cm.GetLastEmptyBlockOnRay(start, end, success);
+            vec3 start = newPos;
+            auto rIter = cm.GetRayIter(start, vec3{0,0,-1});
+            bool success = false;
+            for(int i = 0; i < 3; i++)
+            {
+                if (rIter.chunk == nullptr)
+                {
+                    success = false;
+                    break;
+                }
+                if (rIter.chunk->data.At(rIter.blockCoord))
+                {
+                    success = true;
+                    break;
+                }
+                rIter.Next();
+            }
             if (success)
             {
-                float groundLevel = gPos.z;
+                float groundLevel = rIter.pos.z + 1;
 
                 if (newPos.z < groundLevel)
                 {

@@ -1,5 +1,6 @@
 #include "ChunkManager.hpp"
 #include <algorithm>
+#include <limits>
 
 void ChunkManager::UpdateList(vec3 pos, float radius, float verticalRadius)
 {
@@ -53,115 +54,225 @@ void ChunkManager::GenerateOne(vec3 pos)
 
 	Chunk chunk(coord);
 	bool empty = !chunk.Gen(gen);
-	chunk.GenFaceGrids();
-
-	if (!empty)
-	{
-		if (chunks.contains(coord + ivec3{ 1,0,0 }))
-		{
-			auto& neighbor = chunks.at(coord + ivec3{ 1,0,0 });
-			chunk.CheckNeighborFaces(&neighbor);
-			neighbor.CheckNeighborFaces(&chunk);
-			neighbor.GenFacesGreedy();
-		}
-		if (chunks.contains(coord + ivec3{ -1,0,0 }))
-		{
-			auto& neighbor = chunks.at(coord + ivec3{ -1,0,0 });
-			chunk.CheckNeighborFaces(&neighbor);
-			neighbor.CheckNeighborFaces(&chunk);
-			neighbor.GenFacesGreedy();
-		}
-
-		if (chunks.contains(coord + ivec3{ 0,1,0 }))
-		{
-			auto& neighbor = chunks.at(coord + ivec3{ 0,1,0 });
-			chunk.CheckNeighborFaces(&neighbor);
-			neighbor.CheckNeighborFaces(&chunk);
-			neighbor.GenFacesGreedy();
-		}
-		if (chunks.contains(coord + ivec3{ 0,-1,0 }))
-		{
-			auto& neighbor = chunks.at(coord + ivec3{ 0,-1,0 });
-			chunk.CheckNeighborFaces(&neighbor);
-			neighbor.CheckNeighborFaces(&chunk);
-			neighbor.GenFacesGreedy();
-		}
-
-		if (chunks.contains(coord + ivec3{ 0,0,1 }))
-		{
-			auto& neighbor = chunks.at(coord + ivec3{ 0,0,1 });
-			chunk.CheckNeighborFaces(&neighbor);
-			neighbor.CheckNeighborFaces(&chunk);
-			neighbor.GenFacesGreedy();
-		}
-		if (chunks.contains(coord + ivec3{ 0,0,-1 }))
-		{
-			auto& neighbor = chunks.at(coord + ivec3{ 0,0,-1 });
-			chunk.CheckNeighborFaces(&neighbor);
-			neighbor.CheckNeighborFaces(&chunk);
-			neighbor.GenFacesGreedy();
-		}
-
-		chunk.GenFacesGreedy();
-	}
-
 	chunks.insert({ coord, chunk });
+	MeshChunk(chunk.coordinate);
 	toGenerateList.pop();
 }
 
-ivec3 ChunkManager::GetLastEmptyBlockOnRay(vec3 start, vec3 end, bool& success)
+void ChunkManager::MeshChunk(ivec3 coord)
 {
-	float dx = end.x - start.x;
-	float dy = end.y - start.y;
-	float dz = end.z - start.z;
+	if (!chunks.contains(coord))
+		return;
 
-	float step;
-	if (abs(dx) >= abs(dy) && abs(dx) >= abs(dz))
-		step = abs(dx);
-	else if (abs(dy) >= abs(dz))
-		step = abs(dy);
-	else
-		step = abs(dz);
+	auto& chunk = chunks.at(coord);
+	chunk.GenFaceGrids();
 
-	//step *= 2.0f;
-
-	dx /= step;
-	dy /= step;
-	dz /= step;
-
-	vec3 pos = start;
-	vec3 lastEmpty = start;
-
-	for (int i = 0; i <= step; i++)
+	if (chunks.contains(coord + ivec3{ 1,0,0 }))
 	{
-		ivec3 blockPos = glm::floor(pos);
-		ivec3 cPos = glm::floor(vec3(blockPos) / (float)CHUNK_SPAN);
-
-		if (!chunks.contains(cPos))
-		{
-			success = false;
-			return ivec3();
-		}
-
-		Chunk& chunk = chunks.at(cPos);
-
-		ivec3 bPos = {
-			((blockPos.x % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
-			((blockPos.y % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
-			((blockPos.z % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN
-		};
-
-		auto& type = chunk.data.At(bPos);
-
-		if (type != 0)
-		{
-			success = true;
-			return glm::floor(lastEmpty);
-		}
-
-		lastEmpty = pos;
-		pos += vec3{ dx, dy, dz };
+		auto& neighbor = chunks.at(coord + ivec3{ 1,0,0 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
 	}
-	success = false;
-	return vec3();
+	if (chunks.contains(coord + ivec3{ -1,0,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ -1,0,0 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+
+	if (chunks.contains(coord + ivec3{ 0,1,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,1,0 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+	if (chunks.contains(coord + ivec3{ 0,-1,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,-1,0 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+
+	if (chunks.contains(coord + ivec3{ 0,0,1 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,0,1 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+	if (chunks.contains(coord + ivec3{ 0,0,-1 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,0,-1 });
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+
+	chunk.GenFacesGreedy();
+}
+
+void ChunkManager::MeshChunkModified(ivec3 coord)
+{
+	if (!chunks.contains(coord))
+		return;
+
+	auto& chunk = chunks.at(coord);
+	chunk.GenFaceGrids();
+
+	if (chunks.contains(coord + ivec3{ 1,0,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 1,0,0 });
+		neighbor.GenFaceGrids();
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+	if (chunks.contains(coord + ivec3{ -1,0,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ -1,0,0 });
+		neighbor.GenFaceGrids();
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+
+	if (chunks.contains(coord + ivec3{ 0,1,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,1,0 });
+		neighbor.GenFaceGrids();
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+	if (chunks.contains(coord + ivec3{ 0,-1,0 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,-1,0 });
+		neighbor.GenFaceGrids();
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+
+	if (chunks.contains(coord + ivec3{ 0,0,1 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,0,1 });
+		neighbor.GenFaceGrids();
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+	if (chunks.contains(coord + ivec3{ 0,0,-1 }))
+	{
+		auto& neighbor = chunks.at(coord + ivec3{ 0,0,-1 });
+		neighbor.GenFaceGrids();
+		chunk.CheckNeighborFaces(&neighbor);
+		neighbor.CheckNeighborFaces(&chunk);
+		neighbor.GenFacesGreedy();
+	}
+
+	chunk.GenFacesGreedy();
+}
+
+RayIter ChunkManager::GetRayIter(vec3 start, vec3 dir)
+{
+	float step;
+	if (abs(dir.x) >= abs(dir.y) && abs(dir.x) >= abs(dir.z))
+		step = abs(dir.x);
+	else if (abs(dir.y) >= abs(dir.z))
+		step = abs(dir.y);
+	else
+		step = abs(dir.z);
+
+	dir /= step;
+
+	return RayIter(*this, start, dir);
+}
+
+RayIter::RayIter(ChunkManager& cm, vec3 pos, vec3 dir) : cm(cm)
+{
+	dir = normalize(dir);
+
+	// Current voxel position (integer)
+	this->pos = ivec3(floor(pos));
+
+	steps = { sign(dir.x), sign(dir.y), sign(dir.z) };
+
+	deltaDist.x = (dir.x == 0) ? std::numeric_limits<float>::max() : abs(1.0f / dir.x);
+	deltaDist.y = (dir.y == 0) ? std::numeric_limits<float>::max() : abs(1.0f / dir.y);
+	deltaDist.z = (dir.z == 0) ? std::numeric_limits<float>::max() : abs(1.0f / dir.z);
+
+	// Calculate distance to next voxel boundary from startPos
+	if (dir.x < 0)
+		cellDist.x = (pos.x - this->pos.x) * deltaDist.x;
+	else
+		cellDist.x = (this->pos.x + 1.0f - pos.x) * deltaDist.x;
+
+	if (dir.y < 0)
+		cellDist.y = (pos.y - this->pos.y) * deltaDist.y;
+	else
+		cellDist.y = (this->pos.y + 1.0f - pos.y) * deltaDist.y;
+
+	if (dir.z < 0)
+		cellDist.z = (pos.z - this->pos.z) * deltaDist.z;
+	else
+		cellDist.z = (this->pos.z + 1.0f - pos.z) * deltaDist.z;
+
+	ivec3 chunkCoord = glm::floor(vec3(this->pos) / (float)CHUNK_SPAN);
+	if (!cm.chunks.contains(chunkCoord))
+	{
+		chunk = nullptr;
+	}
+	else
+	{
+		chunk = &cm.chunks.at(chunkCoord);
+	}
+	blockCoord = {
+		((this->pos.x % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
+		((this->pos.y % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
+		((this->pos.z % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN
+	};
+}
+
+void RayIter::Next()
+{
+	if (cellDist.x < cellDist.y && cellDist.x < cellDist.z) // YZ faces
+	{
+		cellDist.x += deltaDist.x;
+		pos.x += steps.x;
+		face = steps.x == 1 ? 2 : 3;
+		faceDist = cellDist.x - deltaDist.x;
+	}
+	else if (cellDist.y < cellDist.z) // XZ faces
+	{
+		cellDist.y += deltaDist.y;
+		pos.y += steps.y;
+		face = steps.y == 1 ? 4 : 5;
+		faceDist = cellDist.y - deltaDist.y;
+	}
+	else // XY faces
+	{
+		cellDist.z += deltaDist.z;
+		pos.z += steps.z;
+		face = steps.z == 1 ? 0 : 1;
+		faceDist = cellDist.z - deltaDist.z;
+	}
+
+	ivec3 chunkCoord = glm::floor(vec3(pos) / (float)CHUNK_SPAN);
+	if (!cm.chunks.contains(chunkCoord))
+	{
+		chunk = nullptr;
+	}
+	else
+	{
+		chunk = &cm.chunks.at(chunkCoord);
+	}
+	blockCoord = {
+		((pos.x % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
+		((pos.y % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
+		((pos.z % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN
+	};
 }

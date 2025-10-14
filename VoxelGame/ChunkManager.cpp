@@ -192,6 +192,34 @@ RayIter ChunkManager::GetRayIter(vec3 start, vec3 dir)
 	return RayIter(*this, start, dir);
 }
 
+ivec3 ChunkManager::GetBlockCoord(vec3 pos)
+{
+	return ivec3{
+		(((int)pos.x % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
+		(((int)pos.y % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN,
+		(((int)pos.z % CHUNK_SPAN) + CHUNK_SPAN) % CHUNK_SPAN
+	};
+}
+
+ivec3 ChunkManager::GetChunkCoord(vec3 pos)
+{
+	return ivec3(pos.x / 16, pos.y / 16, pos.z / 16);
+}
+
+bool ChunkManager::IsChunkLoaded(ivec3 chunkCoord)
+{
+	return chunks.contains(chunkCoord);
+}
+
+bool ChunkManager::IsBlockSolid(ivec3 worldCoordinate)
+{
+	ivec3 chunkCoord = GetChunkCoord(worldCoordinate);
+	if (!chunks.contains(chunkCoord))
+		return false;
+	ivec3 blockCoord = GetBlockCoord(worldCoordinate);
+	return chunks.at(chunkCoord).data.At(blockCoord) != 0;
+}
+
 RayIter::RayIter(ChunkManager& cm, vec3 pos, vec3 dir) : cm(cm)
 {
 	dir = normalize(dir);
@@ -244,6 +272,7 @@ void RayIter::Next()
 		cellDist.x += deltaDist.x;
 		pos.x += steps.x;
 		face = steps.x == 1 ? 2 : 3;
+		faceNorm = steps.x == 1 ? vec3{-1, 0, 0} : vec3{1, 0, 0};
 		faceDist = cellDist.x - deltaDist.x;
 	}
 	else if (cellDist.y < cellDist.z) // XZ faces
@@ -251,6 +280,7 @@ void RayIter::Next()
 		cellDist.y += deltaDist.y;
 		pos.y += steps.y;
 		face = steps.y == 1 ? 4 : 5;
+		faceNorm = steps.y == 1 ? vec3{ 0, -1, 0 } : vec3{ 0, 1, 0 };
 		faceDist = cellDist.y - deltaDist.y;
 	}
 	else // XY faces
@@ -258,6 +288,7 @@ void RayIter::Next()
 		cellDist.z += deltaDist.z;
 		pos.z += steps.z;
 		face = steps.z == 1 ? 0 : 1;
+		faceNorm = steps.z == 1 ? vec3{ 0, 0, -1 } : vec3{ 0, 0, 1 };
 		faceDist = cellDist.z - deltaDist.z;
 	}
 

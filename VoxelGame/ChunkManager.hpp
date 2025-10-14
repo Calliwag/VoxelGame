@@ -41,6 +41,11 @@ public:
 	void MeshChunkModified(ivec3 coord);
 
 	RayIter GetRayIter(vec3 start, vec3 dir);
+	ivec3 GetBlockCoord(vec3 pos);
+	ivec3 GetChunkCoord(vec3 pos);
+
+	bool IsChunkLoaded(ivec3 chunkCoord);
+	bool IsBlockSolid(ivec3 worldCoordinate);
 };
 
 class RayIter
@@ -57,6 +62,7 @@ public:
 	ivec3 blockCoord;
 	float faceDist;
 	int face;
+	vec3 faceNorm;
 
 	RayIter(ChunkManager& cm, vec3 pos, vec3 dir);
 	void Next();

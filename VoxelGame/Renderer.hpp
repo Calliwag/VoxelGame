@@ -21,7 +21,7 @@ public:
 	GLint uvLoc;
 	GLint atlasLoc;
 
-	Renderer(const Texture& atlasTex);
+	Renderer(const TextureArray& texArray);
 
 	void Update(vec3 pos, vec3 dir, float fovY, float width, float height, vec3 lightDir);
 

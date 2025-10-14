@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkManager.cpp" />
+    <ClCompile Include="World.cpp" />
     <ClCompile Include="Generator.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SimView\Bitmap.cpp" />
@@ -143,11 +144,13 @@
     <ClCompile Include="SimView\ShaderProgram.cpp" />
     <ClCompile Include="SimView\Texture.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SimView\TextureArray.cpp" />
     <ClCompile Include="SimView\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Chunk.hpp" />
     <ClInclude Include="ChunkManager.hpp" />
+    <ClInclude Include="World.hpp" />
     <ClInclude Include="Face.hpp" />
     <ClInclude Include="Frustum.hpp" />
     <ClInclude Include="Generator.hpp" />

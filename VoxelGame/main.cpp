@@ -31,35 +31,34 @@ int main()
         window.SetBlendMode(BlendMode::Alpha);
         window.BeginContext();
 
-        int blockCount = 3;
-        Bitmap atlasImg = Bitmap::GetColorImage(16 * blockCount, 16 * 6, Color{0,0,0,255});
+        int blockCount = 2;
+        TextureArray texArray(16, 16, 6 * blockCount, 5);
         {
             auto bottom = Bitmap::FromFile("Assets/dirt_bottom.bmp");
             auto top = Bitmap::FromFile("Assets/dirt_top.bmp");
             auto side = Bitmap::FromFile("Assets/dirt_side.bmp");
-            DrawToAtlas(atlasImg, bottom, 1, 0);
-            DrawToAtlas(atlasImg, top, 1, 1);
-            DrawToAtlas(atlasImg, side, 1, 2);
-            DrawToAtlas(atlasImg, side, 1, 3);
-            DrawToAtlas(atlasImg, side, 1, 4);
-            DrawToAtlas(atlasImg, side, 1, 5);
+            texArray.LayerFromBitmap(bottom, 0);
+            texArray.LayerFromBitmap(top, 1);
+            texArray.LayerFromBitmap(side, 2);
+            texArray.LayerFromBitmap(side, 3);
+            texArray.LayerFromBitmap(side, 4);
+            texArray.LayerFromBitmap(side, 5);
         }
         {
             auto bottom = Bitmap::FromFile("Assets/grass_bottom.bmp");
             auto top = Bitmap::FromFile("Assets/grass_top.bmp");
             auto side = Bitmap::FromFile("Assets/grass_side.bmp");
-            DrawToAtlas(atlasImg, bottom, 2, 0);
-            DrawToAtlas(atlasImg, top, 2, 1);
-            DrawToAtlas(atlasImg, side, 2, 2);
-            DrawToAtlas(atlasImg, side, 2, 3);
-            DrawToAtlas(atlasImg, side, 2, 4);
-            DrawToAtlas(atlasImg, side, 2, 5);
+            texArray.LayerFromBitmap(bottom, 6);
+            texArray.LayerFromBitmap(top, 7);
+            texArray.LayerFromBitmap(side, 8);
+            texArray.LayerFromBitmap(side, 9);
+            texArray.LayerFromBitmap(side, 10);
+            texArray.LayerFromBitmap(side, 11);
         }
 
-        Texture atlasTex = Texture::FromBitmap(atlasImg);
-        atlasTex.GenMipmaps(4, -1.0);
+        texArray.GenMipmaps(0);
 
-        Renderer r(atlasTex);
+        Renderer r(texArray);
         Generator* gen = new WaveGen(0, 8, 128, 128);
         ChunkManager cm(gen);
 
@@ -69,9 +68,9 @@ int main()
         float vRadius = 4 * 16;
 
         int frame = 0;
-        vec3 pos = { .5,.5, 0 };
+        vec3 pos = { 0,0,0 };
         vec3 vel = { 0, 0, 0 };
-        vec3 cameraOffset = { 0,0,1.5 };
+        vec3 cameraOffset = { 0,0,1.62 };
         vec3 dir = { 1,0,0 };
         float hAngle = 0;
         float vAngle = 0;
@@ -178,7 +177,7 @@ int main()
                 genNew = !genNew;
                 std::cout << "press\n";
             }
-            if (window.IsKeyPressed(GLFW_KEY_RIGHT_CONTROL))
+            if (window.IsKeyPressed(GLFW_KEY_ESCAPE))
             {
                 if (mouseLock)
                 {
@@ -197,48 +196,128 @@ int main()
             std::cout << "FPS: " << window.GetFPS() << ", chunks to generate: " << cm.toGenerateList.size() << '\n';
             frame++;
 
-            vel.z -= 9.8 * (float)window.frameTime;
-            vec3 newPos = pos + vel * (float)window.frameTime;
-            vec3 start = newPos;
-            auto rIter = cm.GetRayIter(start, vec3{0,0,-1});
-            bool success = false;
-            for(int i = 0; i < 3; i++)
-            {
-                if (rIter.chunk == nullptr)
-                {
-                    success = false;
-                    break;
-                }
-                if (rIter.chunk->data.At(rIter.blockCoord))
-                {
-                    success = true;
-                    break;
-                }
-                rIter.Next();
-            }
-            if (success)
-            {
-                float groundLevel = rIter.pos.z + 1;
+            vel.z += -9.8 * window.frameTime;
+            auto ray = vel * (float)window.frameTime;
 
-                if (newPos.z < groundLevel)
+            const float bboxWidth = 0.3;
+            const float bboxHeight = 1.8;
+            if (vel.z < 0)
+            {
+                auto rIter = cm.GetRayIter(pos, vec3{ 0, 0, ray.z });
+                while(true)
                 {
-                    pos.z = groundLevel;
-                    vel.z = 0;
-                    pos.x = newPos.x;
-                    pos.y = newPos.y;
-                    if (window.IsKeyPressed(GLFW_KEY_SPACE))
+                    if (rIter.faceDist >= length(ray))
                     {
-                        vel.z = 10;
+                        pos.z += ray.z;
+                        break;
                     }
-                }
-                else
-                {
-                    pos = newPos;
+                    if (cm.IsBlockSolid(rIter.pos))
+                    {
+                        pos.z -= rIter.faceDist;
+                        vel.z = 0;
+                        if (window.IsKeyPressed(GLFW_KEY_SPACE))
+                        {
+                            vel.z = 10;
+                        }
+                        break;
+                    }
+                    rIter.Next();
                 }
             }
-            else
+            else if (vel.z > 0)
             {
-                pos = newPos;
+                auto rIter = cm.GetRayIter(pos + vec3{ 0,0,ray.z } + vec3{ 0,0,bboxHeight }, vec3{ 0,0,1 });
+                while (true)
+                {
+                    if (rIter.faceDist >= length(ray))
+                    {
+                        pos.z += ray.z;
+                        break;
+                    }
+                    if (cm.IsBlockSolid(rIter.pos))
+                    {
+                        pos.z += rIter.faceDist;
+                        vel.z = 0;
+                        break;
+                    }
+                    rIter.Next();
+                }
+            }
+            if (vel.x < 0)
+            {
+                auto rIter = cm.GetRayIter(pos + vec3{ ray.x,0,0 } - vec3{ bboxWidth, 0, 0 }, vec3{ -1,0,0 });
+                while (true)
+                {
+                    if (rIter.faceDist >= length(ray))
+                    {
+                        pos.x += ray.x;
+                        break;
+                    }
+                    if (cm.IsBlockSolid(rIter.pos))
+                    {
+                        pos.x += -rIter.faceDist;
+                        vel.x = 0;
+                        break;
+                    }
+                    rIter.Next();
+                }
+            }
+            else if (vel.x > 0)
+            {
+                auto rIter = cm.GetRayIter(pos + vec3{ ray.x,0,0 } + vec3{ bboxWidth, 0, 0 }, vec3{ 1,0,0 });
+                while (true)
+                {
+                    if (rIter.faceDist >= length(ray))
+                    {
+                        pos.x += ray.x;
+                        break;
+                    }
+                    if (cm.IsBlockSolid(rIter.pos))
+                    {
+                        pos.x += rIter.faceDist;
+                        vel.x = 0;
+                        break;
+                    }
+                    rIter.Next();
+                }
+            }
+            if (vel.y < 0)
+            {
+                auto rIter = cm.GetRayIter(pos + vec3{ 0,ray.y,0 } - vec3{ 0, bboxWidth, 0 }, vec3{ 0,-1,0 });
+                while (true)
+                {
+                    if (rIter.faceDist >= length(ray))
+                    {
+                        pos.y += ray.y;
+                        break;
+                    }
+                    if (cm.IsBlockSolid(rIter.pos))
+                    {
+                        pos.y += -rIter.faceDist;
+                        vel.y = 0;
+                        break;
+                    }
+                    rIter.Next();
+                }
+            }
+            else if (vel.y > 0)
+            {
+                auto rIter = cm.GetRayIter(pos + vec3{ 0,ray.y,0 } + vec3{ 0, bboxWidth, 0 }, vec3{ 0,1,0 });
+                while (true)
+                {
+                    if (rIter.faceDist >= length(ray))
+                    {
+                        pos.y += ray.y;
+                        break;
+                    }
+                    if (cm.IsBlockSolid(rIter.pos))
+                    {
+                        pos.y += rIter.faceDist;
+                        vel.y = 0;
+                        break;
+                    }
+                    rIter.Next();
+                }
             }
         }
 

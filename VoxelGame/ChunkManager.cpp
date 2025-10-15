@@ -206,6 +206,16 @@ ivec3 ChunkManager::GetChunkCoord(vec3 pos)
 	return glm::floor(pos / (float)CHUNK_SPAN);
 }
 
+void ChunkManager::SetBlock(ivec3 coord, u8 value)
+{
+	auto chunkCoord = GetChunkCoord(coord);
+	if (!chunks.contains(chunkCoord))
+		return;
+	auto blockCoord = GetBlockCoord(coord);
+	chunks.at(chunkCoord).data.At(blockCoord) = value;
+	MeshChunkModified(chunkCoord);
+}
+
 bool ChunkManager::IsChunkLoaded(ivec3 chunkCoord)
 {
 	return chunks.contains(chunkCoord);

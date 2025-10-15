@@ -76,7 +76,7 @@ void Creature::PhysUpdate(World& world, float dt)
                 position.x += delta.x;
                 break;
             }
-            if (world.cm.IsBlockSolid(rIter.pos))
+            if (world.cm.IsBlockSolid(rIter.pos) || world.cm.IsBlockSolid(rIter.pos + ivec3{0,0,1}))
             {
                 position.x += -rIter.faceDist;
                 velocity.x = 0;
@@ -95,7 +95,7 @@ void Creature::PhysUpdate(World& world, float dt)
                 position.x += delta.x;
                 break;
             }
-            if (world.cm.IsBlockSolid(rIter.pos))
+            if (world.cm.IsBlockSolid(rIter.pos) || world.cm.IsBlockSolid(rIter.pos + ivec3{ 0,0,1 }))
             {
                 position.x += rIter.faceDist;
                 velocity.x = 0;
@@ -114,7 +114,7 @@ void Creature::PhysUpdate(World& world, float dt)
                 position.y += delta.y;
                 break;
             }
-            if (world.cm.IsBlockSolid(rIter.pos))
+            if (world.cm.IsBlockSolid(rIter.pos) || world.cm.IsBlockSolid(rIter.pos + ivec3{ 0,0,1 }))
             {
                 position.y += -rIter.faceDist;
                 velocity.y = 0;
@@ -133,7 +133,7 @@ void Creature::PhysUpdate(World& world, float dt)
                 position.y += delta.y;
                 break;
             }
-            if (world.cm.IsBlockSolid(rIter.pos))
+            if (world.cm.IsBlockSolid(rIter.pos) || world.cm.IsBlockSolid(rIter.pos + ivec3{ 0,0,1 }))
             {
                 position.y += rIter.faceDist;
                 velocity.y = 0;
@@ -149,7 +149,7 @@ void Creature::PhysUpdate(World& world, float dt)
         velocity.y *= 1 - 0.95 * dt;
     }
 
-    vAngle = clamp(vAngle, -3.14159f / 2, 3.14159f / 2);
+    vAngle = clamp(vAngle, -3.1415f / 2, 3.1415f / 2);
 }
 
 vec2 Creature::GetXYDir()

@@ -47,42 +47,54 @@ void PlayerCreature::Act(World& world)
     if (world.window->IsKeyDown(GLFW_KEY_D))
         targetVel += vec2{ xyDir.y,-xyDir.x } * moveSpeed;
 
-    //constexpr float fValue = 0.95;
-    //velocity.x = velocity.x * fValue + targetVel.x * (1 - fValue);
-    //velocity.y = velocity.y * fValue + targetVel.y * (1 - fValue);
-
     if (onGround && world.window->IsKeyDown(GLFW_KEY_SPACE))
     {
         Jump();
     }
 
-    if (world.window->IsKeyPressed(GLFW_KEY_B))
+    if (world.window->IsKeyPressed(GLFW_KEY_1))
     {
         auto rIter = world.cm.GetRayIter(position + vec3{0,0,1.62}, GetDir());
-        bool found = false;
         while (true)
         {
             if (rIter.faceDist >= 4)
             {
-                found = false;
                 break;
             }
             if (rIter.chunk == nullptr)
             {
-                found = false;
                 break;
             }
             if (rIter.chunk->data.At(rIter.blockCoord) != 0)
             {
-                found = true;
+                world.cm.SetBlock(rIter.pos, 0);
                 break;
             }
             rIter.Next();
         }
-        if (found)
+    }
+
+    if (world.window->IsKeyPressed(GLFW_KEY_2))
+    {
+        auto rIter = world.cm.GetRayIter(position + vec3{ 0,0,1.62 }, GetDir());
+        ivec3 last = rIter.pos;
+        while (true)
         {
-            rIter.chunk->data.At(rIter.blockCoord) = 0;
-            world.cm.MeshChunkModified(rIter.chunk->coordinate);
+            if (rIter.faceDist >= 4)
+            {
+                break;
+            }
+            if (rIter.chunk == nullptr)
+            {
+                break;
+            }
+            if (rIter.chunk->data.At(rIter.blockCoord) != 0)
+            {
+                world.cm.SetBlock(last, 1);
+                break;
+            }
+            last = rIter.pos;
+            rIter.Next();
         }
     }
 

@@ -33,6 +33,7 @@ public:
 	ivec3 toGenerateCenter = { 0,0,0 };
 	Generator* gen;
 
+	ChunkManager() {}
 	ChunkManager(Generator* gen) : gen(gen) {}
 	void UpdateList(vec3 pos, float radius, float verticalRadius);
 	void UnloadDistant(vec3 pos, float radius, float verticalRadius);

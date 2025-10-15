@@ -203,7 +203,7 @@ ivec3 ChunkManager::GetBlockCoord(vec3 pos)
 
 ivec3 ChunkManager::GetChunkCoord(vec3 pos)
 {
-	return ivec3(pos.x / 16, pos.y / 16, pos.z / 16);
+	return glm::floor(pos / (float)CHUNK_SPAN);
 }
 
 bool ChunkManager::IsChunkLoaded(ivec3 chunkCoord)

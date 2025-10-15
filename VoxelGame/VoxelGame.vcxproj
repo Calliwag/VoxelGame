@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkManager.cpp" />
+    <ClCompile Include="PlayerCreature.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="Generator.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -150,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="Chunk.hpp" />
     <ClInclude Include="ChunkManager.hpp" />
+    <ClInclude Include="PlayerCreature.hpp" />
     <ClInclude Include="World.hpp" />
     <ClInclude Include="Face.hpp" />
     <ClInclude Include="Frustum.hpp" />

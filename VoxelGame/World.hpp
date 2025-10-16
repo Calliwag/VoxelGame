@@ -35,6 +35,9 @@ public:
 
 	// Thinking
 	virtual void Act(World& world) = 0;
+
+private:
+	void SweepBBox(World& world, vec3 delta, float timeLeft, float dt);
 };
 
 class World

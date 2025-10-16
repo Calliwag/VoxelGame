@@ -8,6 +8,7 @@
 #include "Generator.hpp"
 #include <queue>
 #include <vector>
+#include "AABB.hpp"
 
 using std::list;
 using std::unordered_map;
@@ -48,6 +49,7 @@ public:
 
 	bool IsChunkLoaded(ivec3 chunkCoord);
 	bool IsBlockSolid(ivec3 worldCoordinate);
+	AABB GetBlockAABB(ivec3 worldCoordinate);
 };
 
 class RayIter

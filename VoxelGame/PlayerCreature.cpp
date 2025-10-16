@@ -39,15 +39,15 @@ void PlayerCreature::Act(World& world)
     }
 
     if (world.window->IsKeyDown(GLFW_KEY_W))
-        targetVel += vec2{ xyDir.x,xyDir.y } * moveSpeed;
+        targetVel += vec2{ xyDir.x,xyDir.y };
     if (world.window->IsKeyDown(GLFW_KEY_S))
-        targetVel += vec2{ -xyDir.x,-xyDir.y } * moveSpeed;
+        targetVel += vec2{ -xyDir.x,-xyDir.y };
     if (world.window->IsKeyDown(GLFW_KEY_A))
-        targetVel += vec2{ -xyDir.y,xyDir.x } * moveSpeed;
+        targetVel += vec2{ -xyDir.y,xyDir.x };
     if (world.window->IsKeyDown(GLFW_KEY_D))
-        targetVel += vec2{ xyDir.y,-xyDir.x } * moveSpeed;
+        targetVel += vec2{ xyDir.y,-xyDir.x };
 
-    if (onGround && world.window->IsKeyDown(GLFW_KEY_SPACE))
+    if (onGround && world.window->IsKeyPressed(GLFW_KEY_SPACE))
     {
         Jump();
     }

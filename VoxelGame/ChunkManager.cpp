@@ -230,6 +230,11 @@ bool ChunkManager::IsBlockSolid(ivec3 worldCoordinate)
 	return chunks.at(chunkCoord).data.At(blockCoord) != 0;
 }
 
+AABB ChunkManager::GetBlockAABB(ivec3 worldCoordinate)
+{
+	return AABB::NegativeAligned(worldCoordinate, {1,1,1});
+}
+
 RayIter::RayIter(ChunkManager& cm, vec3 pos, vec3 dir) : cm(cm)
 {
 	dir = normalize(dir);

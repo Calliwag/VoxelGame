@@ -1,5 +1,7 @@
-TODO:
+Done:
 * Swept AABB collision
+
+Todo:
 * Mouse button input
 * Check creature collision for block placement
 * Make every face of a block type match to a specific texture index to save space

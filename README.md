@@ -4,6 +4,9 @@ Done:
 
 Todo:
 * Scroll wheel input
+* Iterator for blocks in volume
+* Iterator for chunks in volume
+* Iterator for creatures in volume
 * Check creature collision for block placement/ store what creatures are in what chunks
 * Make every face of a block type match to a specific texture index to save space
 * UI (Crosshair, active block, etc.)

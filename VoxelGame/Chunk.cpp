@@ -825,10 +825,8 @@ void Chunk::GenArrays()
     vec2* uvs = new vec2[6 * faceCount];
     int* faceType = new int[6 * faceCount];
     int vIndex = 0;
-    vec3 norm;
 
     // Negative XY faces
-    norm = { 0,0,-1 };
     for (auto& face : nxyFaces)
     {
         auto& c0 = face.verts[0];
@@ -863,7 +861,6 @@ void Chunk::GenArrays()
     }
 
     // Positive XY faces
-    norm = { 0,0,1 };
     for (auto& face : pxyFaces)
     {
         auto& c0 = face.verts[0];
@@ -898,7 +895,6 @@ void Chunk::GenArrays()
     }
 
     // Negative YZ faces
-    norm = { -1,0,0 };
     for (auto& face : nyzFaces)
     {
         auto& c0 = face.verts[0];
@@ -933,7 +929,6 @@ void Chunk::GenArrays()
     }
 
     // Positive YZ faces
-    norm = { 1,0,0 };
     for (auto& face : pyzFaces)
     {
         auto& c0 = face.verts[0];
@@ -968,7 +963,6 @@ void Chunk::GenArrays()
     }
 
     // Negative XZ faces
-    norm = { 0,-1,0 };
     for (auto& face : nxzFaces)
     {
         auto& c0 = face.verts[0];
@@ -1003,7 +997,6 @@ void Chunk::GenArrays()
     }
 
     // Positive XZ faces
-    norm = { 0,1,0 };
     for (auto& face : pxzFaces)
     {
         auto& c0 = face.verts[0];

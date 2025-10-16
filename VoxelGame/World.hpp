@@ -50,7 +50,7 @@ public:
 	Creature* viewCreature;
 
 	float sunHAngle = 3.1416 / 6.f;
-	float sunVAngle = -3.1416 / 4.f;
+	float sunVAngle = 3.1416 / 4.f;
 	
 	World();
 	~World();

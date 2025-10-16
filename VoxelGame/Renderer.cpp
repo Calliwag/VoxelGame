@@ -51,34 +51,6 @@ void main()
 
 )";
 
-//const char* fragmentShader = /* fragment shader:*/ R"(
-//#version 460 core
-//#extension GL_ARB_texture_query_lod : enable
-//
-//flat in ivec2 faceLookup; // x = block type, y = block face
-//in float lightValue;
-//in vec2 fUV;
-//
-//uniform sampler2D atlas;
-//
-//out vec4 FragColor;
-//
-//vec4 SampleTextureWithCoord(sampler2D tex, vec2 coord)
-//{
-//    ivec2 size = textureSize(tex, 0);
-//    vec2 fCoord = vec2(coord.x / float(size.x), coord.y / float(size.y));
-//    float lod = textureQueryLOD(tex, 16.0 *  (fUV + vec2(faceLookup)) / vec2(size)).x;
-//    return textureLod(tex, fCoord, lod);
-//}
-//
-//void main()
-//{
-//    vec2 texCoord = vec2(16.0 * mod(fUV.x,1.0),16.0 * mod(fUV.y,1.0)) + 16.0 * faceLookup;
-//    FragColor = SampleTextureWithCoord(atlas,texCoord) * vec4(lightValue,lightValue,lightValue,1.0);
-//}
-//
-//)";
-
 const char* fragmentShader = /* fragment shader:*/ R"(
 #version 460 core
 #extension GL_ARB_texture_query_lod : enable
@@ -91,18 +63,8 @@ uniform sampler2DArray atlas;
 
 out vec4 FragColor;
 
-//vec4 SampleTextureWithCoord(sampler2D tex, vec2 coord)
-//{
-//    ivec2 size = textureSize(tex, 0);
-//    vec2 fCoord = vec2(coord.x / float(size.x), coord.y / float(size.y));
-//    float lod = textureQueryLOD(tex, 16.0 *  (fUV + vec2(faceLookup)) / vec2(size)).x;
-//    return textureLod(tex, fCoord, lod);
-//}
-
 void main()
 {
-    //vec2 texCoord = vec2(16.0 * mod(fUV.x,1.0),16.0 * mod(fUV.y,1.0)) + 16.0 * faceLookup;
-    //FragColor = SampleTextureWithCoord(atlas,texCoord) * vec4(lightValue,lightValue,lightValue,1.0);
     int layer = 6 * faceLookup.x + faceLookup.y;
     vec3 texCoord = vec3(fUV, layer);
     FragColor = texture(atlas, texCoord) * vec4(lightValue,lightValue,lightValue,1.0);

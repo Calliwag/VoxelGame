@@ -33,46 +33,6 @@ void Creature::PhysUpdate(World& world, float dt)
 
     SweepBBox(world, delta, 1.0, dt);
 
-    //auto cBox = AABB::BottomCenterAligned(position, { bboxWidth,bboxWidth,bboxHeight });
-    //auto broadBox = cBox.BroadExpand(delta);
-    //ivec3 min = floor(broadBox.pos);
-    //ivec3 max = ceil(broadBox.pos + broadBox.size);
-
-    //bool foundIntersect = false;
-    //float closestIntersect = 1.0;
-    //vec3 closestNorm = { 0,0,0 };
-    //for (int x = min.x; x < max.x; x++)
-    //{
-    //    for (int y = min.y; y < max.y; y++)
-    //    {
-    //        for (int z = min.z; z < max.z; z++)
-    //        {
-    //            if (!world.cm.IsBlockSolid({ x,y,z }))
-    //                continue;
-    //            auto bBox = world.cm.GetBlockAABB({ x,y,z });
-    //            vec3 norm;
-    //            float intersect = cBox.SweepCollision(delta, bBox, norm);
-    //            if (intersect < closestIntersect)
-    //            {
-    //                foundIntersect = true;
-    //                closestIntersect = intersect;
-    //                closestNorm = norm;
-    //            }
-    //        }
-    //    }
-    //}
-
-    //if (!foundIntersect)
-    //{
-    //    position += delta;
-    //}
-    //else
-    //{
-    //    position += delta * closestIntersect;
-    //    float timeLeft = 1.0 - closestIntersect;
-    //    velocity -= dot(velocity, closestNorm) * closestNorm;
-    //}
-
     if (onGround)
     {
         velocity.x *= 1 - 0.95 * dt;
@@ -138,7 +98,7 @@ void Creature::SweepBBox(World& world, vec3 delta, float timeLeft, float dt)
         timeLeft = timeLeft - closestIntersect;
         velocity -= dot(velocity, closestNorm) * closestNorm;
         delta = velocity * dt * timeLeft;
-        if (timeLeft > 0.01)
+        if (timeLeft > 0.001)
         {
             SweepBBox(world, delta, timeLeft, dt);
         }

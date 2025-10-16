@@ -32,6 +32,7 @@ public:
 	void PhysUpdate(World& world, float dt);
 	vec2 GetXYDir();
 	vec3 GetDir();
+	AABB GetAABB();
 
 	// Thinking
 	virtual void Act(World& world) = 0;

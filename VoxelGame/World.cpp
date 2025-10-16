@@ -55,9 +55,14 @@ vec3 Creature::GetDir()
     return dir;
 }
 
+AABB Creature::GetAABB()
+{
+    return AABB::BottomCenterAligned(position, { bboxWidth,bboxWidth,bboxHeight });
+}
+
 void Creature::SweepBBox(World& world, vec3 delta, float timeLeft, float dt)
 {
-    auto cBox = AABB::BottomCenterAligned(position, { bboxWidth,bboxWidth,bboxHeight });
+    auto cBox = GetAABB();
     auto broadBox = cBox.BroadExpand(delta);
     ivec3 min = floor(broadBox.pos);
     ivec3 max = ceil(broadBox.pos + broadBox.size);

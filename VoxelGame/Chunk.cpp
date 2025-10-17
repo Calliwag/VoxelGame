@@ -1,6 +1,6 @@
 #include "Chunk.hpp"
 
-void Chunk::GenFaceGrids()
+void Chunk::GenFaceGrids(TexData& texData)
 {
     arraysGenerated = false;
 
@@ -20,22 +20,11 @@ void Chunk::GenFaceGrids()
 
                 { // xy Faces
                     auto& mType = nxyFaceGrid.At({ x, y, z }); // negative face
-                    if (z > 0)
+                    mType = type;
+                    if (z != 0)
                     {
                         auto& pType = pxyFaceGrid.At({ x,y,z - 1 });
-                        if (pType == 0)
-                        {
-                            mType = type;
-                        }
-                        else
-                        {
-                            pType = 0;
-                            mType = 0;
-                        }
-                    }
-                    else
-                    {
-                        mType = type;
+                        texData.ResolveFaces(mType, pType);
                     }
 
                     pxyFaceGrid.At({ x, y, z }) = type; // positive face
@@ -43,22 +32,11 @@ void Chunk::GenFaceGrids()
 
                 { // yz Faces
                     auto& mType = nyzFaceGrid.At({ x, y, z }); // negative face
-                    if (x > 0)
+                    mType = type;
+                    if (x != 0)
                     {
                         auto& pType = pyzFaceGrid.At({ x - 1,y,z });
-                        if (pType == 0)
-                        {
-                            mType = type;
-                        }
-                        else
-                        {
-                            pType = 0;
-                            mType = 0;
-                        }
-                    }
-                    else
-                    {
-                        mType = type;
+                        texData.ResolveFaces(mType, pType);
                     }
 
                     pyzFaceGrid.At({ x, y, z }) = type; // positive face
@@ -66,22 +44,11 @@ void Chunk::GenFaceGrids()
 
                 { // xz Faces
                     auto& mType = nxzFaceGrid.At({ x, y, z }); // negative face
-                    if (y > 0)
+                    mType = type;
+                    if (y != 0)
                     {
                         auto& pType = pxzFaceGrid.At({ x,y - 1,z });
-                        if (pType == 0)
-                        {
-                            mType = type;
-                        }
-                        else
-                        {
-                            pType = 0;
-                            mType = 0;
-                        }
-                    }
-                    else
-                    {
-                        mType = type;
+                        texData.ResolveFaces(mType, pType);
                     }
 
                     pxzFaceGrid.At({ x, y, z }) = type; // positive face
@@ -151,7 +118,7 @@ void Chunk::GenFaceGridsSide(ivec3 neighborCoord)
     }
 }
 
-void Chunk::CheckNeighborFaces(Chunk* neighbor)
+void Chunk::CheckNeighborFaces(Chunk* neighbor, TexData& texData)
 {
     if (neighbor == nullptr)
         return;
@@ -183,11 +150,12 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
                 auto& thisType = thisFaces->At({ thisX,y,z });
                 if (thisType != 0)
                 {
-                    auto& otherType = neighbor->data.At({ otherX,y,z });
-                    if (otherType != 0)
-                    {
-                        thisType = 0;
-                    }
+                    auto otherType = neighbor->data.At({ otherX,y,z });
+                    //if (otherType != 0)
+                    //{
+                    //    thisType = 0;
+                    //}
+                    texData.ResolveFaces(thisType, otherType);
                 }
             }
         return;
@@ -215,11 +183,12 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
                 auto& thisType = thisFaces->At({ x,thisY,z });
                 if (thisType != 0)
                 {
-                    auto& otherType = neighbor->data.At({ x,otherY,z });
-                    if (otherType != 0)
-                    {
-                        thisType = 0;
-                    }
+                    auto otherType = neighbor->data.At({ x,otherY,z });
+                    //if (otherType != 0)
+                    //{
+                    //    thisType = 0;
+                    //}
+                    texData.ResolveFaces(thisType, otherType);
                 }
             }
         return;
@@ -247,11 +216,12 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
                 auto& thisType = thisFaces->At({ x,y,thisZ });
                 if (thisType != 0)
                 {
-                    auto& otherType = neighbor->data.At({ x,y,otherZ });
-                    if (otherType != 0)
-                    {
-                        thisType = 0;
-                    }
+                    auto otherType = neighbor->data.At({ x,y,otherZ });
+                    //if (otherType != 0)
+                    //{
+                    //    thisType = 0;
+                    //}
+                    texData.ResolveFaces(thisType, otherType);
                 }
             }
         return;

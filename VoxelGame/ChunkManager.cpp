@@ -65,50 +65,50 @@ void ChunkManager::MeshChunk(ivec3 chunkCoord, TexData& texData)
 		return;
 
 	auto& chunk = chunks.at(chunkCoord);
-	chunk.GenFaceGrids();
+	chunk.GenFaceGrids(texData);
 
 	if (chunks.contains(chunkCoord + ivec3{ 1,0,0 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 1,0,0 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 	if (chunks.contains(chunkCoord + ivec3{ -1,0,0 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ -1,0,0 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 
 	if (chunks.contains(chunkCoord + ivec3{ 0,1,0 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 0,1,0 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 	if (chunks.contains(chunkCoord + ivec3{ 0,-1,0 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 0,-1,0 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 
 	if (chunks.contains(chunkCoord + ivec3{ 0,0,1 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 0,0,1 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 	if (chunks.contains(chunkCoord + ivec3{ 0,0,-1 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 0,0,-1 });
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 
@@ -121,56 +121,50 @@ void ChunkManager::MeshChunkModified(ivec3 chunkCoord, TexData& texData)
 		return;
 
 	auto& chunk = chunks.at(chunkCoord);
-	chunk.GenFaceGrids();
+	chunk.GenFaceGrids(texData);
 
 	if (chunks.contains(chunkCoord + ivec3{ 1,0,0 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 1,0,0 });
-		//neighbor.GenFaceGrids();
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 	if (chunks.contains(chunkCoord + ivec3{ -1,0,0 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ -1,0,0 });
-		//neighbor.GenFaceGrids();
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 
 	if (chunks.contains(chunkCoord + ivec3{ 0,1,0 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 0,1,0 });
-		//neighbor.GenFaceGrids();
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 	if (chunks.contains(chunkCoord + ivec3{ 0,-1,0 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 0,-1,0 });
-		//neighbor.GenFaceGrids();
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 
 	if (chunks.contains(chunkCoord + ivec3{ 0,0,1 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 0,0,1 });
-		//neighbor.GenFaceGrids();
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 	if (chunks.contains(chunkCoord + ivec3{ 0,0,-1 }))
 	{
 		auto& neighbor = chunks.at(chunkCoord + ivec3{ 0,0,-1 });
-		//neighbor.GenFaceGrids();
-		chunk.CheckNeighborFaces(&neighbor);
-		neighbor.CheckNeighborFaces(&chunk);
+		chunk.CheckNeighborFaces(&neighbor, texData);
+		neighbor.CheckNeighborFaces(&chunk, texData);
 		neighbor.GenFaces(texData);
 	}
 

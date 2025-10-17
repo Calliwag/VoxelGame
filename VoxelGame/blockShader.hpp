@@ -66,7 +66,9 @@ out vec4 FragColor;
 void main()
 {
     vec3 texCoord = vec3(fUV, texLayer);
-    FragColor = texture(atlas, texCoord) * vec4(lightValue,lightValue,lightValue,1.0);
+    vec4 texColor = texture(atlas, texCoord);
+    if(texColor.a <= 0.5) discard;
+    FragColor = texColor * vec4(lightValue,lightValue,lightValue,1.0);
 }
 
 )";

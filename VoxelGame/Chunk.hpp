@@ -26,9 +26,9 @@ public:
 
 	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxzFaceGrid;
 	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxzFaceGrid;
-	void GenFaceGrids();
+	void GenFaceGrids(TexData& texData);
 	void GenFaceGridsSide(ivec3 neighborCoord);
-    void CheckNeighborFaces(Chunk* neighbor);
+    void CheckNeighborFaces(Chunk* neighbor, TexData& texData);
 
 	// Face lists
 	std::vector<Face> nxyFaces;

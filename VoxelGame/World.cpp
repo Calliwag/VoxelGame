@@ -121,34 +121,17 @@ World::World()
     window->SetBlendMode(BlendMode::Alpha);
     window->BeginContext();
 
-    int blockCount = 2;
-    TextureArray texArray(16, 16, 6 * blockCount, 5);
-    {
-        auto bottom = Bitmap::FromFile("Assets/dirt_bottom.bmp");
-        auto top = Bitmap::FromFile("Assets/dirt_top.bmp");
-        auto side = Bitmap::FromFile("Assets/dirt_side.bmp");
-        texArray.LayerFromBitmap(bottom, 0);
-        texArray.LayerFromBitmap(top, 1);
-        texArray.LayerFromBitmap(side, 2);
-        texArray.LayerFromBitmap(side, 3);
-        texArray.LayerFromBitmap(side, 4);
-        texArray.LayerFromBitmap(side, 5);
-    }
-    {
-        auto bottom = Bitmap::FromFile("Assets/grass_bottom.bmp");
-        auto top = Bitmap::FromFile("Assets/grass_top.bmp");
-        auto side = Bitmap::FromFile("Assets/grass_side.bmp");
-        texArray.LayerFromBitmap(bottom, 6);
-        texArray.LayerFromBitmap(top, 7);
-        texArray.LayerFromBitmap(side, 8);
-        texArray.LayerFromBitmap(side, 9);
-        texArray.LayerFromBitmap(side, 10);
-        texArray.LayerFromBitmap(side, 11);
-    }
+    TexData bTexData({ "noTex","dirt_top","dirt_side","grass_top","grass_side","rock_top","rock_side","wood"});
+    int map1[] = { 1,1,2,2,2,2 };
+    bTexData.LinkBlockTextures(1, map1);
+    int map2[] = { 1,3,4,4,4,4 };
+    bTexData.LinkBlockTextures(2, map2);
+    int map3[] = { 5,5,6,6,6,6 };
+    bTexData.LinkBlockTextures(3, map3);
+    int map4[] = { 7,7,7,7,7,7 };
+    bTexData.LinkBlockTextures(4, map4);
 
-    texArray.GenMipmaps(0);
-
-    r = Renderer(texArray);
+    r = Renderer(bTexData);
     Generator* gen = new WaveGen(0, 8, 128, 128);
     cm = ChunkManager(gen);
 }
@@ -214,7 +197,7 @@ void World::GenChunks(int count)
 {
     for (int i = 0; i < count; i++)
     {
-        cm.GenerateOne(viewCreature->position);
+        cm.GenerateOne(viewCreature->position, r.texData);
     }
 }
 
@@ -224,4 +207,9 @@ void World::UpdateToGenerateList()
     constexpr float vRadius = 64;
     cm.UpdateList(viewCreature->position, radius, vRadius);
     cm.UnloadDistant(viewCreature->position, radius, vRadius);
+}
+
+void World::SetBlock(ivec3 coord, blockType value)
+{
+    cm.SetBlock(coord, value, r.texData);
 }

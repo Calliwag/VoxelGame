@@ -109,7 +109,7 @@ void PlayerCreature::PlaceBlock(World& world, u8 type)
         }
         if (rIter.chunk->data.At(rIter.blockCoord) != 0)
         {
-            world.cm.SetBlock(last, type);
+            world.SetBlock(last, type);
             break;
         }
         last = rIter.pos;
@@ -132,7 +132,7 @@ void PlayerCreature::BreakBlock(World& world)
         }
         if (rIter.chunk->data.At(rIter.blockCoord) != 0)
         {
-            world.cm.SetBlock(rIter.pos, 0);
+            world.SetBlock(rIter.pos, 0);
             break;
         }
         rIter.Next();

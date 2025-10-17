@@ -7,30 +7,25 @@
 #include "Face.hpp"
 #include "SimView/SimView.hpp"
 #include "Generator.hpp"
-
-using namespace glm;
-using namespace SimView;
-
-constexpr int CHUNK_SPAN = 16;
-constexpr int CHUNK_AREA = CHUNK_SPAN * CHUNK_SPAN;
-constexpr int CHUNK_VOLUME = CHUNK_AREA * CHUNK_SPAN;
+#include <string>
+#include "TexData.hpp"
 
 class Chunk
 {
 public:
 	// General
-	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> data;
+	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> data;
 	ivec3 coordinate;
 
 	// Face grids
-	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxyFaceGrid;
-	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxyFaceGrid;
+	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxyFaceGrid;
+	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxyFaceGrid;
 
-	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nyzFaceGrid;
-	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pyzFaceGrid;
+	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nyzFaceGrid;
+	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pyzFaceGrid;
 
-	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxzFaceGrid;
-	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxzFaceGrid;
+	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxzFaceGrid;
+	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxzFaceGrid;
 	void GenFaceGrids();
 	void GenFaceGridsSide(ivec3 neighborCoord);
     void CheckNeighborFaces(Chunk* neighbor);
@@ -44,13 +39,12 @@ public:
 
 	std::vector<Face> nxzFaces;
     std::vector<Face> pxzFaces;
-	void GenFaces();
-	//void GenFacesGreedy();
+	void GenFaces(TexData& texData);
 
 	VArray<float> faceVertArray;
 	VArray<int> faceNormArray;
 	VArray<float> faceUVArray;
-	VArray<int> faceTypeArray;
+	VArray<int> faceTexArray;
 	int faceCount;
 	bool arraysGenerated = false;
 	void GenArrays();
@@ -62,7 +56,7 @@ public:
 	void GenChunkLevel(int level);
 	bool Gen(Generator* gen);
 
-	u8 GetData(ivec3 coord);
+	blockType GetData(ivec3 coord);
 
 	bool operator ==(const Chunk& other) const
 	{

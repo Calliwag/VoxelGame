@@ -7,12 +7,12 @@ using namespace glm;
 struct Face
 {
     vec3* verts;
-    u8 type;
+    int texIdx;
 
-    Face(vec3* verts, u8 type) : verts(verts), type(type)
+    Face(vec3* verts, int texIdx) : verts(verts), texIdx(texIdx)
     {
     };
-    Face(const Face& other) : type(other.type)
+    Face(const Face& other) : texIdx(other.texIdx)
     {
         if (other.verts) {
             verts = new vec3[4];
@@ -28,7 +28,7 @@ struct Face
     {
         if (this == &other)
             return *this;
-        type = other.type;
+        texIdx = other.texIdx;
         delete[] verts;
         if (other.verts) {
             verts = new vec3[4];

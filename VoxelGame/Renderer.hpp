@@ -18,15 +18,16 @@ public:
 	GLint posLoc;
 	GLint normLoc;
 	GLint lightDirLoc;
-	GLint blockTypeLoc;
+	GLint texIndexLoc;
 	GLint uvLoc;
 	GLint atlasLoc;
 
+	TexData texData;
+
 	Renderer() {}
-	Renderer(const TextureArray& texArray);
+	Renderer(TexData texData);
 
 	void Update(vec3 pos, vec3 dir, float fovY, float width, float height, vec3 lightDir);
-
 	bool DrawChunk(Chunk& chunk);
 };
 

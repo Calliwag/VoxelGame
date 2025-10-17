@@ -1,11 +1,13 @@
 #include "Renderer.hpp"
 #include "blockShader.hpp"
 
-Renderer::Renderer(const TextureArray& texArray)
+Renderer::Renderer(TexData texData)
 {
+    this->texData = texData;
+
     blockShader = ShaderProgram(blockVertexShader, blockFragmentShader, false,
-        { "matrix","offset","lightDir","atlas"}, // Uniforms
-        { "pos","normIdx","blockType","uv" }  // Attributes
+        { "matrix","offset","lightDir","atlas" }, // Uniforms
+        { "pos","normIdx","texIndex","uv" }  // Attributes
     );
     blockShader.BindProgram();
 
@@ -15,10 +17,10 @@ Renderer::Renderer(const TextureArray& texArray)
     posLoc = blockShader.GetVarLoc("pos");
     uvLoc = blockShader.GetVarLoc("uv");
     lightDirLoc = blockShader.GetVarLoc("lightDir");
-    blockTypeLoc = blockShader.GetVarLoc("blockType");
+    texIndexLoc = blockShader.GetVarLoc("texIndex");
     atlasLoc = blockShader.GetVarLoc("atlas");
 
-    blockShader.BindTextureArray(texArray);
+    blockShader.BindTextureArray(texData.texArray);
 
     // Depth buffer
     glEnable(GL_DEPTH_TEST);
@@ -59,7 +61,7 @@ bool Renderer::DrawChunk(Chunk& chunk)
     blockShader.BindArray(chunk.faceVertArray, posLoc);
     blockShader.BindArray(chunk.faceNormArray, normLoc);
     blockShader.BindArray(chunk.faceUVArray, uvLoc);
-    blockShader.BindArray(chunk.faceTypeArray, blockTypeLoc);
+    blockShader.BindArray(chunk.faceTexArray, texIndexLoc);
     blockShader.RenderTris(chunk.faceVertArray.count * 2);
 
     return true;

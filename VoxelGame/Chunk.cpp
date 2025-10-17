@@ -195,7 +195,7 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor)
     }
 }
 
-void Chunk::GenFacesSimple()
+void Chunk::GenFaces()
 {
     nxyFaces = {};
     pxyFaces = {};
@@ -231,9 +231,9 @@ void Chunk::GenFacesSimple()
                     vec3* verts = new vec3[]
                     {
                         iPos + ivec3{ 0,0,1 },
-                        iPos + ivec3{ 1,0,1 },
+                        iPos + ivec3{ 0,1,1 },
                         iPos + ivec3{ 1,1,1 },
-                        iPos + ivec3{ 0,1,1 }
+                        iPos + ivec3{ 1,0,1 }
                     };
                     pxyFaces.emplace_back(verts, pxyType);
                 }
@@ -259,9 +259,9 @@ void Chunk::GenFacesSimple()
                     vec3* verts = new vec3[]
                     {
                         iPos + ivec3{ 1,0,0 },
-                        iPos + ivec3{ 1,1,0 },
+                        iPos + ivec3{ 1,0,1 },
                         iPos + ivec3{ 1,1,1 },
-                        iPos + ivec3{ 1,0,1 }
+                        iPos + ivec3{ 1,1,0 }
                     };
                     pyzFaces.emplace_back(verts, pyzType);
                 }
@@ -273,9 +273,9 @@ void Chunk::GenFacesSimple()
                     vec3* verts = new vec3[]
                     {
                         iPos + ivec3{ 0,0,0 },
-                        iPos + ivec3{ 1,0,0 },
+                        iPos + ivec3{ 0,0,1 },
                         iPos + ivec3{ 1,0,1 },
-                        iPos + ivec3{ 0,0,1 }
+                        iPos + ivec3{ 1,0,0 }
                     };
                     nxzFaces.emplace_back(verts, nxzType);
                 }
@@ -291,527 +291,527 @@ void Chunk::GenFacesSimple()
                         iPos + ivec3{ 1,1,1 },
                         iPos + ivec3{ 0,1,1 }
                     };
-                    pxzFaces.emplace_back(verts, nxzType);
+                    pxzFaces.emplace_back(verts, pxzType);
                 }
             }
 }
 
-void Chunk::GenFacesGreedy()
-{
-    nxyFaces = {};
-    pxyFaces = {};
-    nyzFaces = {};
-    pyzFaces = {};
-    nxzFaces = {};
-    pxzFaces = {};
-    ivec3 size = { CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN };
-
-    Grid<bool, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> meshedBlocks;
-
-    // Greedy mesh negative XY faces
-    meshedBlocks.Fill(false);
-    for (int z = 0; z < size.z; z++)
-    {
-        ivec3 corner = { 0,0,z };
-        bool endLayer = false;
-        while (!endLayer)
-        {
-            // Find the next corner where data is not 0
-            u8 currentType;
-            while (true)
-            {
-                if (corner.x >= size.x)
-                {
-                    corner.x = 0;
-                    corner.y += 1;
-                }
-                if (corner.y >= size.y)
-                {
-                    endLayer = true;
-                    break;
-                }
-                auto& faceType = nxyFaceGrid.At(corner);
-                if (faceType != 0 && !meshedBlocks.At(corner))
-                {
-                    currentType = faceType;
-                    break;
-                }
-                corner.x++;
-            }
-            if (endLayer)
-                break;
-
-            // Extend the rectangle along the positive X direction
-            int rectX = 0;
-            while (corner.x + rectX < size.x)
-            {
-                auto& faceType = nxyFaceGrid.At(corner + ivec3{ rectX, 0, 0 });
-                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ rectX, 0,0 }))
-                {
-                    break;
-                }
-                meshedBlocks.At(corner + ivec3{ rectX,0,0 }) = true;
-                rectX++;
-            }
-
-            // Extend the rectangle along the positive Y direction
-            int rectY = 1;
-            bool good = true;
-            while (corner.y + rectY < size.y && good)
-            {
-                for (int x = corner.x; x < corner.x + rectX; x++)
-                {
-                    auto& faceType = nxyFaceGrid.At({ x,corner.y + rectY,z });
-                    if (faceType != currentType || meshedBlocks.At({ x,corner.y + rectY, z }))
-                    {
-                        good = false;
-                        break;
-                    }
-                }
-                if (!good)
-                    break;
-                for (int x = corner.x; x < corner.x + rectX; x++)
-                {
-                    meshedBlocks.At({ x,corner.y + rectY, z }) = true;
-                }
-                rectY++;
-            }
-
-            rectX -= 1;
-            rectY -= 1;
-
-            vec3* verts = new vec3[]
-            {
-                corner + ivec3{ 0,0,0 },
-                corner + ivec3{ rectX + 1,0,0 },
-                corner + ivec3{ rectX + 1,rectY + 1,0 },
-                corner + ivec3{ 0,rectY + 1,0 }
-            };
-            nxyFaces.emplace_back(verts, currentType);
-            corner.x += rectX + 1;
-        }
-    }
-
-    // Greedy mesh positive XY faces
-    meshedBlocks.Fill(false);
-    for (int z = 0; z < size.z; z++)
-    {
-        ivec3 corner = { 0,0,z };
-        bool endLayer = false;
-        while (!endLayer)
-        {
-            // Find the next corner where data is not 0
-            u8 currentType;
-            while (true)
-            {
-                if (corner.x >= size.x)
-                {
-                    corner.x = 0;
-                    corner.y += 1;
-                }
-                if (corner.y >= size.y)
-                {
-                    endLayer = true;
-                    break;
-                }
-                auto& faceType = pxyFaceGrid.At(corner);
-                if (faceType != 0 && !meshedBlocks.At(corner))
-                {
-                    currentType = faceType;
-                    break;
-                }
-                corner.x++;
-            }
-            if (endLayer)
-                break;
-
-            // Extend the rectangle along the positive X direction
-            int rectX = 0;
-            while (corner.x + rectX < size.x)
-            {
-                auto& faceType = pxyFaceGrid.At(corner + ivec3{ rectX, 0, 0 });
-                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ rectX, 0,0 }))
-                {
-                    break;
-                }
-                meshedBlocks.At(corner + ivec3{ rectX,0,0 }) = true;
-                rectX++;
-            }
-
-            // Extend the rectangle along the positive Y direction
-            int rectY = 1;
-            bool good = true;
-            while (corner.y + rectY < size.y && good)
-            {
-                for (int x = corner.x; x < corner.x + rectX; x++)
-                {
-                    auto& faceType = pxyFaceGrid.At({ x,corner.y + rectY,z });
-                    if (faceType != currentType || meshedBlocks.At({ x,corner.y + rectY, z }))
-                    {
-                        good = false;
-                        break;
-                    }
-                }
-                if (!good)
-                    break;
-                for (int x = corner.x; x < corner.x + rectX; x++)
-                {
-                    meshedBlocks.At({ x,corner.y + rectY, z }) = true;
-                }
-                rectY++;
-            }
-
-            rectX -= 1;
-            rectY -= 1;
-
-            vec3* verts = new vec3[]
-            {
-                corner + ivec3{ 0,0,1 },
-                corner + ivec3{ 0,rectY + 1,1 },
-                corner + ivec3{ rectX + 1,rectY + 1,1 },
-                corner + ivec3{ rectX + 1,0,1 },
-            };
-            pxyFaces.emplace_back(verts, currentType);
-            corner.x += rectX + 1;
-        }
-    }
-
-    // Greedy mesh negative YZ faces
-    meshedBlocks.Fill(false);
-    for (int x = 0; x < size.x; x++)
-    {
-        ivec3 corner = { x,0,0 };
-        bool endLayer = false;
-        while (!endLayer)
-        {
-            // Find the next corner where data is not 0
-            u8 currentType;
-            while (true)
-            {
-                if (corner.y >= size.y)
-                {
-                    corner.y = 0;
-                    corner.z += 1;
-                }
-                if (corner.z >= size.z)
-                {
-                    endLayer = true;
-                    break;
-                }
-                auto& faceType = nyzFaceGrid.At(corner);
-                if (faceType != 0 && !meshedBlocks.At(corner))
-                {
-                    currentType = faceType;
-                    break;
-                }
-                corner.y++;
-            }
-            if (endLayer)
-                break;
-
-            // Extend the rectangle along the positive Y direction
-            int rectY = 0;
-            while (corner.y + rectY < size.y)
-            {
-                auto& faceType = nyzFaceGrid.At(corner + ivec3{ 0, rectY, 0 });
-                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ 0, rectY,0 }))
-                {
-                    break;
-                }
-                meshedBlocks.At(corner + ivec3{ 0,rectY,0 }) = true;
-                rectY++;
-            }
-
-            // Extend the rectangle along the positive Z direction
-            int rectZ = 1;
-            bool good = true;
-            while (corner.z + rectZ < size.z && good)
-            {
-                for (int y = corner.y; y < corner.y + rectY; y++)
-                {
-                    auto& faceType = nyzFaceGrid.At({ x,y,corner.z + rectZ });
-                    if (faceType != currentType || meshedBlocks.At({ x,y,corner.z + rectZ }))
-                    {
-                        good = false;
-                        break;
-                    }
-                }
-                if (!good)
-                    break;
-                for (int y = corner.y; y < corner.y + rectY; y++)
-                {
-                    meshedBlocks.At({ x,y,corner.z + rectZ }) = true;
-                }
-                rectZ++;
-            }
-
-            rectY -= 1;
-            rectZ -= 1;
-
-            vec3* verts = new vec3[]
-            {
-                corner + ivec3{ 0,0,0 },
-                corner + ivec3{ 0,rectY + 1,0 },
-                corner + ivec3{ 0,rectY + 1,rectZ + 1 },
-                corner + ivec3{ 0,0,rectZ + 1 }
-            };
-            nyzFaces.emplace_back(verts, currentType);
-            corner.y += rectY + 1;
-        }
-    }
-
-    // Greedy mesh positive YZ faces
-    meshedBlocks.Fill(false);
-    for (int x = 0; x < size.x; x++)
-    {
-        ivec3 corner = { x,0,0 };
-        bool endLayer = false;
-        while (!endLayer)
-        {
-            // Find the next corner where data is not 0
-            u8 currentType;
-            while (true)
-            {
-                if (corner.y >= size.y)
-                {
-                    corner.y = 0;
-                    corner.z += 1;
-                }
-                if (corner.z >= size.z)
-                {
-                    endLayer = true;
-                    break;
-                }
-                auto& faceType = pyzFaceGrid.At(corner);
-                if (faceType != 0 && !meshedBlocks.At(corner))
-                {
-                    currentType = faceType;
-                    break;
-                }
-                corner.y++;
-            }
-            if (endLayer)
-                break;
-
-            // Extend the rectangle along the positive Y direction
-            int rectY = 0;
-            while (corner.y + rectY < size.y)
-            {
-                auto& faceType = pyzFaceGrid.At(corner + ivec3{ 0, rectY, 0 });
-                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ 0, rectY,0 }))
-                {
-                    break;
-                }
-                meshedBlocks.At(corner + ivec3{ 0,rectY,0 }) = true;
-                rectY++;
-            }
-
-            // Extend the rectangle along the positive Z direction
-            int rectZ = 1;
-            bool good = true;
-            while (corner.z + rectZ < size.z && good)
-            {
-                for (int y = corner.y; y < corner.y + rectY; y++)
-                {
-                    auto& faceType = pyzFaceGrid.At({ x,y,corner.z + rectZ });
-                    if (faceType != currentType || meshedBlocks.At({ x,y,corner.z + rectZ }))
-                    {
-                        good = false;
-                        break;
-                    }
-                }
-                if (!good)
-                    break;
-                for (int y = corner.y; y < corner.y + rectY; y++)
-                {
-                    meshedBlocks.At({ x,y,corner.z + rectZ }) = true;
-                }
-                rectZ++;
-            }
-
-            rectY -= 1;
-            rectZ -= 1;
-
-            vec3* verts = new vec3[]
-            {
-                corner + ivec3{ 1,0,0 },
-                corner + ivec3{ 1,0,rectZ + 1 },
-                corner + ivec3{ 1,rectY + 1,rectZ + 1 },
-                corner + ivec3{ 1,rectY + 1,0 },
-            };
-            pyzFaces.emplace_back(verts, currentType);
-            corner.y += rectY + 1;
-        }
-    }
-
-    // Greedy mesh negative XZ faces
-    meshedBlocks.Fill(false);
-    for (int y = 0; y < size.y; y++)
-    {
-        ivec3 corner = { 0,y,0 };
-        bool endLayer = false;
-        while (!endLayer)
-        {
-            // Find the next corner where data is not 0
-            u8 currentType;
-            while (true)
-            {
-                if (corner.x >= size.x)
-                {
-                    corner.x = 0;
-                    corner.z += 1;
-                }
-                if (corner.z >= size.z)
-                {
-                    endLayer = true;
-                    break;
-                }
-                auto& faceType = nxzFaceGrid.At(corner);
-                if (faceType != 0 && !meshedBlocks.At(corner))
-                {
-                    currentType = faceType;
-                    break;
-                }
-                corner.x++;
-            }
-            if (endLayer)
-                break;
-
-            // Extend the rectangle along the positive X direction
-            int rectX = 0;
-            while (corner.x + rectX < size.x)
-            {
-                auto& faceType = nxzFaceGrid.At(corner + ivec3{ rectX, 0, 0 });
-                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ rectX, 0,0 }))
-                {
-                    break;
-                }
-                meshedBlocks.At(corner + ivec3{ rectX,0,0 }) = true;
-                rectX++;
-            }
-
-            // Extend the rectangle along the positive Z direction
-            int rectZ = 1;
-            bool good = true;
-            while (corner.z + rectZ < size.z && good)
-            {
-                for (int x = corner.x; x < corner.x + rectX; x++)
-                {
-                    auto& faceType = nxzFaceGrid.At({ x,y,corner.z + rectZ });
-                    if (faceType != currentType || meshedBlocks.At({ x,y,corner.z + rectZ }))
-                    {
-                        good = false;
-                        break;
-                    }
-                }
-                if (!good)
-                    break;
-                for (int x = corner.x; x < corner.x + rectX; x++)
-                {
-                    meshedBlocks.At({ x,y,corner.z + rectZ }) = true;
-                }
-                rectZ++;
-            }
-
-            rectX -= 1;
-            rectZ -= 1;
-
-            vec3* verts = new vec3[]
-            {
-                corner + ivec3{ 0,0,0 },
-                corner + ivec3{ 0,0,rectZ + 1 },
-                corner + ivec3{ rectX + 1,0,rectZ + 1 },
-                corner + ivec3{ rectX + 1,0,0 },
-            };
-            nxzFaces.emplace_back(verts, currentType);
-            corner.x += rectX + 1;
-        }
-    }
-
-    // Greedy mesh positive XZ faces
-    meshedBlocks.Fill(false);
-    for (int y = 0; y < size.y; y++)
-    {
-        ivec3 corner = { 0,y,0 };
-        bool endLayer = false;
-        while (!endLayer)
-        {
-            // Find the next corner where data is not 0
-            u8 currentType;
-            while (true)
-            {
-                if (corner.x >= size.x)
-                {
-                    corner.x = 0;
-                    corner.z += 1;
-                }
-                if (corner.z >= size.z)
-                {
-                    endLayer = true;
-                    break;
-                }
-                auto& faceType = pxzFaceGrid.At(corner);
-                if (faceType != 0 && !meshedBlocks.At(corner))
-                {
-                    currentType = faceType;
-                    break;
-                }
-                corner.x++;
-            }
-            if (endLayer)
-                break;
-
-            // Extend the rectangle along the positive X direction
-            int rectX = 0;
-            while (corner.x + rectX < size.x)
-            {
-                auto& faceType = pxzFaceGrid.At(corner + ivec3{ rectX, 0, 0 });
-                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ rectX, 0,0 }))
-                {
-                    break;
-                }
-                meshedBlocks.At(corner + ivec3{ rectX,0,0 }) = true;
-                rectX++;
-            }
-
-            // Extend the rectangle along the positive Z direction
-            int rectZ = 1;
-            bool good = true;
-            while (corner.z + rectZ < size.z && good)
-            {
-                for (int x = corner.x; x < corner.x + rectX; x++)
-                {
-                    auto& faceType = pxzFaceGrid.At({ x,y,corner.z + rectZ });
-                    if (faceType != currentType || meshedBlocks.At({ x,y,corner.z + rectZ }))
-                    {
-                        good = false;
-                        break;
-                    }
-                }
-                if (!good)
-                    break;
-                for (int x = corner.x; x < corner.x + rectX; x++)
-                {
-                    meshedBlocks.At({ x,y,corner.z + rectZ }) = true;
-                }
-                rectZ++;
-            }
-
-            rectX -= 1;
-            rectZ -= 1;
-
-            vec3* verts = new vec3[]
-            {
-                corner + ivec3{ 0,1,0 },
-                corner + ivec3{ rectX + 1,1,0 },
-                corner + ivec3{ rectX + 1,1,rectZ + 1 },
-                corner + ivec3{ 0,1,rectZ + 1 }
-            };
-            pxzFaces.emplace_back(verts, currentType);
-            corner.x += rectX + 1;
-        }
-    }
-}
+//void Chunk::GenFacesGreedy()
+//{
+//    nxyFaces = {};
+//    pxyFaces = {};
+//    nyzFaces = {};
+//    pyzFaces = {};
+//    nxzFaces = {};
+//    pxzFaces = {};
+//    ivec3 size = { CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN };
+//
+//    Grid<bool, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> meshedBlocks;
+//
+//    // Greedy mesh negative XY faces
+//    meshedBlocks.Fill(false);
+//    for (int z = 0; z < size.z; z++)
+//    {
+//        ivec3 corner = { 0,0,z };
+//        bool endLayer = false;
+//        while (!endLayer)
+//        {
+//            // Find the next corner where data is not 0
+//            u8 currentType;
+//            while (true)
+//            {
+//                if (corner.x >= size.x)
+//                {
+//                    corner.x = 0;
+//                    corner.y += 1;
+//                }
+//                if (corner.y >= size.y)
+//                {
+//                    endLayer = true;
+//                    break;
+//                }
+//                auto& faceType = nxyFaceGrid.At(corner);
+//                if (faceType != 0 && !meshedBlocks.At(corner))
+//                {
+//                    currentType = faceType;
+//                    break;
+//                }
+//                corner.x++;
+//            }
+//            if (endLayer)
+//                break;
+//
+//            // Extend the rectangle along the positive X direction
+//            int rectX = 0;
+//            while (corner.x + rectX < size.x)
+//            {
+//                auto& faceType = nxyFaceGrid.At(corner + ivec3{ rectX, 0, 0 });
+//                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ rectX, 0,0 }))
+//                {
+//                    break;
+//                }
+//                meshedBlocks.At(corner + ivec3{ rectX,0,0 }) = true;
+//                rectX++;
+//            }
+//
+//            // Extend the rectangle along the positive Y direction
+//            int rectY = 1;
+//            bool good = true;
+//            while (corner.y + rectY < size.y && good)
+//            {
+//                for (int x = corner.x; x < corner.x + rectX; x++)
+//                {
+//                    auto& faceType = nxyFaceGrid.At({ x,corner.y + rectY,z });
+//                    if (faceType != currentType || meshedBlocks.At({ x,corner.y + rectY, z }))
+//                    {
+//                        good = false;
+//                        break;
+//                    }
+//                }
+//                if (!good)
+//                    break;
+//                for (int x = corner.x; x < corner.x + rectX; x++)
+//                {
+//                    meshedBlocks.At({ x,corner.y + rectY, z }) = true;
+//                }
+//                rectY++;
+//            }
+//
+//            rectX -= 1;
+//            rectY -= 1;
+//
+//            vec3* verts = new vec3[]
+//            {
+//                corner + ivec3{ 0,0,0 },
+//                corner + ivec3{ rectX + 1,0,0 },
+//                corner + ivec3{ rectX + 1,rectY + 1,0 },
+//                corner + ivec3{ 0,rectY + 1,0 }
+//            };
+//            nxyFaces.emplace_back(verts, currentType);
+//            corner.x += rectX + 1;
+//        }
+//    }
+//
+//    // Greedy mesh positive XY faces
+//    meshedBlocks.Fill(false);
+//    for (int z = 0; z < size.z; z++)
+//    {
+//        ivec3 corner = { 0,0,z };
+//        bool endLayer = false;
+//        while (!endLayer)
+//        {
+//            // Find the next corner where data is not 0
+//            u8 currentType;
+//            while (true)
+//            {
+//                if (corner.x >= size.x)
+//                {
+//                    corner.x = 0;
+//                    corner.y += 1;
+//                }
+//                if (corner.y >= size.y)
+//                {
+//                    endLayer = true;
+//                    break;
+//                }
+//                auto& faceType = pxyFaceGrid.At(corner);
+//                if (faceType != 0 && !meshedBlocks.At(corner))
+//                {
+//                    currentType = faceType;
+//                    break;
+//                }
+//                corner.x++;
+//            }
+//            if (endLayer)
+//                break;
+//
+//            // Extend the rectangle along the positive X direction
+//            int rectX = 0;
+//            while (corner.x + rectX < size.x)
+//            {
+//                auto& faceType = pxyFaceGrid.At(corner + ivec3{ rectX, 0, 0 });
+//                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ rectX, 0,0 }))
+//                {
+//                    break;
+//                }
+//                meshedBlocks.At(corner + ivec3{ rectX,0,0 }) = true;
+//                rectX++;
+//            }
+//
+//            // Extend the rectangle along the positive Y direction
+//            int rectY = 1;
+//            bool good = true;
+//            while (corner.y + rectY < size.y && good)
+//            {
+//                for (int x = corner.x; x < corner.x + rectX; x++)
+//                {
+//                    auto& faceType = pxyFaceGrid.At({ x,corner.y + rectY,z });
+//                    if (faceType != currentType || meshedBlocks.At({ x,corner.y + rectY, z }))
+//                    {
+//                        good = false;
+//                        break;
+//                    }
+//                }
+//                if (!good)
+//                    break;
+//                for (int x = corner.x; x < corner.x + rectX; x++)
+//                {
+//                    meshedBlocks.At({ x,corner.y + rectY, z }) = true;
+//                }
+//                rectY++;
+//            }
+//
+//            rectX -= 1;
+//            rectY -= 1;
+//
+//            vec3* verts = new vec3[]
+//            {
+//                corner + ivec3{ 0,0,1 },
+//                corner + ivec3{ 0,rectY + 1,1 },
+//                corner + ivec3{ rectX + 1,rectY + 1,1 },
+//                corner + ivec3{ rectX + 1,0,1 },
+//            };
+//            pxyFaces.emplace_back(verts, currentType);
+//            corner.x += rectX + 1;
+//        }
+//    }
+//
+//    // Greedy mesh negative YZ faces
+//    meshedBlocks.Fill(false);
+//    for (int x = 0; x < size.x; x++)
+//    {
+//        ivec3 corner = { x,0,0 };
+//        bool endLayer = false;
+//        while (!endLayer)
+//        {
+//            // Find the next corner where data is not 0
+//            u8 currentType;
+//            while (true)
+//            {
+//                if (corner.y >= size.y)
+//                {
+//                    corner.y = 0;
+//                    corner.z += 1;
+//                }
+//                if (corner.z >= size.z)
+//                {
+//                    endLayer = true;
+//                    break;
+//                }
+//                auto& faceType = nyzFaceGrid.At(corner);
+//                if (faceType != 0 && !meshedBlocks.At(corner))
+//                {
+//                    currentType = faceType;
+//                    break;
+//                }
+//                corner.y++;
+//            }
+//            if (endLayer)
+//                break;
+//
+//            // Extend the rectangle along the positive Y direction
+//            int rectY = 0;
+//            while (corner.y + rectY < size.y)
+//            {
+//                auto& faceType = nyzFaceGrid.At(corner + ivec3{ 0, rectY, 0 });
+//                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ 0, rectY,0 }))
+//                {
+//                    break;
+//                }
+//                meshedBlocks.At(corner + ivec3{ 0,rectY,0 }) = true;
+//                rectY++;
+//            }
+//
+//            // Extend the rectangle along the positive Z direction
+//            int rectZ = 1;
+//            bool good = true;
+//            while (corner.z + rectZ < size.z && good)
+//            {
+//                for (int y = corner.y; y < corner.y + rectY; y++)
+//                {
+//                    auto& faceType = nyzFaceGrid.At({ x,y,corner.z + rectZ });
+//                    if (faceType != currentType || meshedBlocks.At({ x,y,corner.z + rectZ }))
+//                    {
+//                        good = false;
+//                        break;
+//                    }
+//                }
+//                if (!good)
+//                    break;
+//                for (int y = corner.y; y < corner.y + rectY; y++)
+//                {
+//                    meshedBlocks.At({ x,y,corner.z + rectZ }) = true;
+//                }
+//                rectZ++;
+//            }
+//
+//            rectY -= 1;
+//            rectZ -= 1;
+//
+//            vec3* verts = new vec3[]
+//            {
+//                corner + ivec3{ 0,0,0 },
+//                corner + ivec3{ 0,rectY + 1,0 },
+//                corner + ivec3{ 0,rectY + 1,rectZ + 1 },
+//                corner + ivec3{ 0,0,rectZ + 1 }
+//            };
+//            nyzFaces.emplace_back(verts, currentType);
+//            corner.y += rectY + 1;
+//        }
+//    }
+//
+//    // Greedy mesh positive YZ faces
+//    meshedBlocks.Fill(false);
+//    for (int x = 0; x < size.x; x++)
+//    {
+//        ivec3 corner = { x,0,0 };
+//        bool endLayer = false;
+//        while (!endLayer)
+//        {
+//            // Find the next corner where data is not 0
+//            u8 currentType;
+//            while (true)
+//            {
+//                if (corner.y >= size.y)
+//                {
+//                    corner.y = 0;
+//                    corner.z += 1;
+//                }
+//                if (corner.z >= size.z)
+//                {
+//                    endLayer = true;
+//                    break;
+//                }
+//                auto& faceType = pyzFaceGrid.At(corner);
+//                if (faceType != 0 && !meshedBlocks.At(corner))
+//                {
+//                    currentType = faceType;
+//                    break;
+//                }
+//                corner.y++;
+//            }
+//            if (endLayer)
+//                break;
+//
+//            // Extend the rectangle along the positive Y direction
+//            int rectY = 0;
+//            while (corner.y + rectY < size.y)
+//            {
+//                auto& faceType = pyzFaceGrid.At(corner + ivec3{ 0, rectY, 0 });
+//                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ 0, rectY,0 }))
+//                {
+//                    break;
+//                }
+//                meshedBlocks.At(corner + ivec3{ 0,rectY,0 }) = true;
+//                rectY++;
+//            }
+//
+//            // Extend the rectangle along the positive Z direction
+//            int rectZ = 1;
+//            bool good = true;
+//            while (corner.z + rectZ < size.z && good)
+//            {
+//                for (int y = corner.y; y < corner.y + rectY; y++)
+//                {
+//                    auto& faceType = pyzFaceGrid.At({ x,y,corner.z + rectZ });
+//                    if (faceType != currentType || meshedBlocks.At({ x,y,corner.z + rectZ }))
+//                    {
+//                        good = false;
+//                        break;
+//                    }
+//                }
+//                if (!good)
+//                    break;
+//                for (int y = corner.y; y < corner.y + rectY; y++)
+//                {
+//                    meshedBlocks.At({ x,y,corner.z + rectZ }) = true;
+//                }
+//                rectZ++;
+//            }
+//
+//            rectY -= 1;
+//            rectZ -= 1;
+//
+//            vec3* verts = new vec3[]
+//            {
+//                corner + ivec3{ 1,0,0 },
+//                corner + ivec3{ 1,0,rectZ + 1 },
+//                corner + ivec3{ 1,rectY + 1,rectZ + 1 },
+//                corner + ivec3{ 1,rectY + 1,0 },
+//            };
+//            pyzFaces.emplace_back(verts, currentType);
+//            corner.y += rectY + 1;
+//        }
+//    }
+//
+//    // Greedy mesh negative XZ faces
+//    meshedBlocks.Fill(false);
+//    for (int y = 0; y < size.y; y++)
+//    {
+//        ivec3 corner = { 0,y,0 };
+//        bool endLayer = false;
+//        while (!endLayer)
+//        {
+//            // Find the next corner where data is not 0
+//            u8 currentType;
+//            while (true)
+//            {
+//                if (corner.x >= size.x)
+//                {
+//                    corner.x = 0;
+//                    corner.z += 1;
+//                }
+//                if (corner.z >= size.z)
+//                {
+//                    endLayer = true;
+//                    break;
+//                }
+//                auto& faceType = nxzFaceGrid.At(corner);
+//                if (faceType != 0 && !meshedBlocks.At(corner))
+//                {
+//                    currentType = faceType;
+//                    break;
+//                }
+//                corner.x++;
+//            }
+//            if (endLayer)
+//                break;
+//
+//            // Extend the rectangle along the positive X direction
+//            int rectX = 0;
+//            while (corner.x + rectX < size.x)
+//            {
+//                auto& faceType = nxzFaceGrid.At(corner + ivec3{ rectX, 0, 0 });
+//                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ rectX, 0,0 }))
+//                {
+//                    break;
+//                }
+//                meshedBlocks.At(corner + ivec3{ rectX,0,0 }) = true;
+//                rectX++;
+//            }
+//
+//            // Extend the rectangle along the positive Z direction
+//            int rectZ = 1;
+//            bool good = true;
+//            while (corner.z + rectZ < size.z && good)
+//            {
+//                for (int x = corner.x; x < corner.x + rectX; x++)
+//                {
+//                    auto& faceType = nxzFaceGrid.At({ x,y,corner.z + rectZ });
+//                    if (faceType != currentType || meshedBlocks.At({ x,y,corner.z + rectZ }))
+//                    {
+//                        good = false;
+//                        break;
+//                    }
+//                }
+//                if (!good)
+//                    break;
+//                for (int x = corner.x; x < corner.x + rectX; x++)
+//                {
+//                    meshedBlocks.At({ x,y,corner.z + rectZ }) = true;
+//                }
+//                rectZ++;
+//            }
+//
+//            rectX -= 1;
+//            rectZ -= 1;
+//
+//            vec3* verts = new vec3[]
+//            {
+//                corner + ivec3{ 0,0,0 },
+//                corner + ivec3{ 0,0,rectZ + 1 },
+//                corner + ivec3{ rectX + 1,0,rectZ + 1 },
+//                corner + ivec3{ rectX + 1,0,0 },
+//            };
+//            nxzFaces.emplace_back(verts, currentType);
+//            corner.x += rectX + 1;
+//        }
+//    }
+//
+//    // Greedy mesh positive XZ faces
+//    meshedBlocks.Fill(false);
+//    for (int y = 0; y < size.y; y++)
+//    {
+//        ivec3 corner = { 0,y,0 };
+//        bool endLayer = false;
+//        while (!endLayer)
+//        {
+//            // Find the next corner where data is not 0
+//            u8 currentType;
+//            while (true)
+//            {
+//                if (corner.x >= size.x)
+//                {
+//                    corner.x = 0;
+//                    corner.z += 1;
+//                }
+//                if (corner.z >= size.z)
+//                {
+//                    endLayer = true;
+//                    break;
+//                }
+//                auto& faceType = pxzFaceGrid.At(corner);
+//                if (faceType != 0 && !meshedBlocks.At(corner))
+//                {
+//                    currentType = faceType;
+//                    break;
+//                }
+//                corner.x++;
+//            }
+//            if (endLayer)
+//                break;
+//
+//            // Extend the rectangle along the positive X direction
+//            int rectX = 0;
+//            while (corner.x + rectX < size.x)
+//            {
+//                auto& faceType = pxzFaceGrid.At(corner + ivec3{ rectX, 0, 0 });
+//                if (faceType != currentType || meshedBlocks.At(corner + ivec3{ rectX, 0,0 }))
+//                {
+//                    break;
+//                }
+//                meshedBlocks.At(corner + ivec3{ rectX,0,0 }) = true;
+//                rectX++;
+//            }
+//
+//            // Extend the rectangle along the positive Z direction
+//            int rectZ = 1;
+//            bool good = true;
+//            while (corner.z + rectZ < size.z && good)
+//            {
+//                for (int x = corner.x; x < corner.x + rectX; x++)
+//                {
+//                    auto& faceType = pxzFaceGrid.At({ x,y,corner.z + rectZ });
+//                    if (faceType != currentType || meshedBlocks.At({ x,y,corner.z + rectZ }))
+//                    {
+//                        good = false;
+//                        break;
+//                    }
+//                }
+//                if (!good)
+//                    break;
+//                for (int x = corner.x; x < corner.x + rectX; x++)
+//                {
+//                    meshedBlocks.At({ x,y,corner.z + rectZ }) = true;
+//                }
+//                rectZ++;
+//            }
+//
+//            rectX -= 1;
+//            rectZ -= 1;
+//
+//            vec3* verts = new vec3[]
+//            {
+//                corner + ivec3{ 0,1,0 },
+//                corner + ivec3{ rectX + 1,1,0 },
+//                corner + ivec3{ rectX + 1,1,rectZ + 1 },
+//                corner + ivec3{ 0,1,rectZ + 1 }
+//            };
+//            pxzFaces.emplace_back(verts, currentType);
+//            corner.x += rectX + 1;
+//        }
+//    }
+//}
 
 void Chunk::GenArrays()
 {

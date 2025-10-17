@@ -43,8 +43,8 @@ public:
 
 	std::vector<Face> nxzFaces;
     std::vector<Face> pxzFaces;
-	void GenFacesSimple();
-	void GenFacesGreedy();
+	void GenFaces();
+	//void GenFacesGreedy();
 
 	VArray<float> faceVertArray;
 	VArray<int> faceNormArray;

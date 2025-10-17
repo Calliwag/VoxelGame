@@ -72,14 +72,14 @@ void ChunkManager::MeshChunk(ivec3 coord)
 		auto& neighbor = chunks.at(coord + ivec3{ 1,0,0 });
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 	if (chunks.contains(coord + ivec3{ -1,0,0 }))
 	{
 		auto& neighbor = chunks.at(coord + ivec3{ -1,0,0 });
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 
 	if (chunks.contains(coord + ivec3{ 0,1,0 }))
@@ -87,14 +87,14 @@ void ChunkManager::MeshChunk(ivec3 coord)
 		auto& neighbor = chunks.at(coord + ivec3{ 0,1,0 });
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 	if (chunks.contains(coord + ivec3{ 0,-1,0 }))
 	{
 		auto& neighbor = chunks.at(coord + ivec3{ 0,-1,0 });
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 
 	if (chunks.contains(coord + ivec3{ 0,0,1 }))
@@ -102,17 +102,17 @@ void ChunkManager::MeshChunk(ivec3 coord)
 		auto& neighbor = chunks.at(coord + ivec3{ 0,0,1 });
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 	if (chunks.contains(coord + ivec3{ 0,0,-1 }))
 	{
 		auto& neighbor = chunks.at(coord + ivec3{ 0,0,-1 });
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 
-	chunk.GenFacesGreedy();
+	chunk.GenFaces();
 }
 
 void ChunkManager::MeshChunkModified(ivec3 coord)
@@ -129,7 +129,7 @@ void ChunkManager::MeshChunkModified(ivec3 coord)
 		neighbor.GenFaceGrids();
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 	if (chunks.contains(coord + ivec3{ -1,0,0 }))
 	{
@@ -137,7 +137,7 @@ void ChunkManager::MeshChunkModified(ivec3 coord)
 		neighbor.GenFaceGrids();
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 
 	if (chunks.contains(coord + ivec3{ 0,1,0 }))
@@ -146,7 +146,7 @@ void ChunkManager::MeshChunkModified(ivec3 coord)
 		neighbor.GenFaceGrids();
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 	if (chunks.contains(coord + ivec3{ 0,-1,0 }))
 	{
@@ -154,7 +154,7 @@ void ChunkManager::MeshChunkModified(ivec3 coord)
 		neighbor.GenFaceGrids();
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 
 	if (chunks.contains(coord + ivec3{ 0,0,1 }))
@@ -163,7 +163,7 @@ void ChunkManager::MeshChunkModified(ivec3 coord)
 		neighbor.GenFaceGrids();
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 	if (chunks.contains(coord + ivec3{ 0,0,-1 }))
 	{
@@ -171,10 +171,10 @@ void ChunkManager::MeshChunkModified(ivec3 coord)
 		neighbor.GenFaceGrids();
 		chunk.CheckNeighborFaces(&neighbor);
 		neighbor.CheckNeighborFaces(&chunk);
-		neighbor.GenFacesGreedy();
+		neighbor.GenFaces();
 	}
 
-	chunk.GenFacesGreedy();
+	chunk.GenFaces();
 }
 
 RayIter ChunkManager::GetRayIter(vec3 start, vec3 dir)

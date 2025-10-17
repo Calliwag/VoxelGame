@@ -10,7 +10,6 @@ Todo:
   * Active block visualization
 * More block types (wood, stone, bricks, etc.)
 * Check creature collision for block placement/ store what creatures are in what chunks
-* UI (Crosshair, active block, etc.)
 * Better world generation
 * Transparent blocks
 * Oddly shaped blocks

@@ -39,8 +39,8 @@ public:
 	void UpdateList(vec3 pos, float radius, float verticalRadius);
 	void UnloadDistant(vec3 pos, float radius, float verticalRadius);
 	void GenerateOne(vec3 pos);
-	void MeshChunk(ivec3 coord);
-	void MeshChunkModified(ivec3 coord);
+	void MeshChunk(ivec3 chunkCoord);
+	void MeshChunkModified(ivec3 chunkCoord);
 
 	RayIter GetRayIter(vec3 start, vec3 dir);
 	ivec3 GetBlockCoord(vec3 pos);

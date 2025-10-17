@@ -24,12 +24,21 @@ void PlayerCreature::Act(World& world)
     {
         hAngle -= world.window->mouseDelta.x * mouseSensitivity;
         vAngle -= world.window->mouseDelta.y * mouseSensitivity;
-        world.window->mouseDelta = { 0,0 };
 
         if (world.window->IsMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
             BreakBlock(world);
         if (world.window->IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
-            PlaceBlock(world, 1);
+            PlaceBlock(world, inv.currentBlock);
+
+        auto scrollDelta = world.window->GetScrollDelta();
+        if(scrollDelta.y <= -1)
+            if (inv.currentBlock > 0)
+                inv.currentBlock--;
+        if(scrollDelta.y >= 1)
+            if (inv.currentBlock < 255)
+                inv.currentBlock++;
+        //#include <cinttypes>
+        //printf("%" PRId8 "\n", inv.currentBlock);
     }
     else
     {
@@ -46,6 +55,13 @@ void PlayerCreature::Act(World& world)
             BreakBlock(world);
         if (world.window->IsKeyPressed(GLFW_KEY_2))
             PlaceBlock(world, 1);
+
+        if (world.window->IsKeyPressed(GLFW_KEY_LEFT_BRACKET))
+            if (inv.currentBlock > 0)
+                inv.currentBlock--;
+        if (world.window->IsKeyPressed(GLFW_KEY_RIGHT_BRACKET))
+            if (inv.currentBlock < 255)
+                inv.currentBlock++;
     }
 
     if (world.window->IsKeyDown(GLFW_KEY_W))
@@ -93,7 +109,7 @@ void PlayerCreature::PlaceBlock(World& world, u8 type)
         }
         if (rIter.chunk->data.At(rIter.blockCoord) != 0)
         {
-            world.cm.SetBlock(last, 1);
+            world.cm.SetBlock(last, type);
             break;
         }
         last = rIter.pos;

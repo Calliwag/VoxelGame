@@ -10,6 +10,7 @@ class Renderer
 {
 public:
 	ShaderProgram blockShader;
+	//ShaderProgram uiShader;
 	Frustum frustum;
 
 	GLint matrixLoc;

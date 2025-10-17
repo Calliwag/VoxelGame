@@ -32,6 +32,7 @@ public:
 	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxzFaceGrid;
 	Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxzFaceGrid;
 	void GenFaceGrids();
+	void GenFaceGridsSide(ivec3 neighborCoord);
     void CheckNeighborFaces(Chunk* neighbor);
 
 	// Face lists

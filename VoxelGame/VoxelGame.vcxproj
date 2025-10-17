@@ -136,6 +136,7 @@
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkManager.cpp" />
+    <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="PlayerCreature.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="Generator.cpp" />
@@ -151,8 +152,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.hpp" />
+    <ClInclude Include="blockShader.hpp" />
     <ClInclude Include="Chunk.hpp" />
     <ClInclude Include="ChunkManager.hpp" />
+    <ClInclude Include="Inventory.hpp" />
     <ClInclude Include="PlayerCreature.hpp" />
     <ClInclude Include="World.hpp" />
     <ClInclude Include="Face.hpp" />

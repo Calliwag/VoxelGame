@@ -89,11 +89,74 @@ void Chunk::GenFaceGrids()
             }
 }
 
+void Chunk::GenFaceGridsSide(ivec3 neighborCoord)
+{
+    ivec3 side = neighborCoord - coordinate;
+
+    ivec3 layerVec = { 0,0,0 };
+    ivec3 iVec = { 0,0,0 };
+    ivec3 jVec = { 0,0,0 };
+    Grid<u8, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN>* faces = nullptr;
+
+    if (side.x != 0)
+    {
+        iVec.y = 1;
+        jVec.z = 1;
+        if (side.x > 0)
+        {
+            layerVec.x = CHUNK_SPAN - 1;
+            faces = &pyzFaceGrid;
+        }
+        else
+        {
+            faces = &nyzFaceGrid;
+        }
+    }
+    else if (side.y != 0)
+    {
+        iVec.x = 1;
+        jVec.z = 1;
+        if (side.y > 0)
+        {
+            layerVec.y = CHUNK_SPAN - 1;
+            faces = &pxzFaceGrid;
+        }
+        else
+        {
+            faces = &nxzFaceGrid;
+        }
+    }
+    else if (side.z != 0)
+    {
+        iVec.x = 1;
+        jVec.y = 1;
+        if (side.z > 0)
+        {
+            layerVec.z = CHUNK_SPAN - 1;
+            faces = &pxyFaceGrid;
+        }
+        else
+        {
+            faces = &nxyFaceGrid;
+        }
+    }
+
+    for (int i = 0; i < CHUNK_SPAN; i++)
+    {
+        for (int j = 0; j < CHUNK_SPAN; j++)
+        {
+            auto vec = layerVec + i * iVec + j * jVec;
+            faces->At(vec) = GetData(vec);
+        }
+    }
+}
+
 void Chunk::CheckNeighborFaces(Chunk* neighbor)
 {
     if (neighbor == nullptr)
         return;
     arraysGenerated = false;
+    GenFaceGridsSide(neighbor->coordinate);
     ivec3 offset = neighbor->coordinate - coordinate;
     if (taxiLen(offset) > 1)
         return;

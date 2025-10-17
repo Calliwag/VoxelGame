@@ -103,7 +103,7 @@ void Creature::SweepBBox(World& world, vec3 delta, float timeLeft, float dt)
         timeLeft = timeLeft - closestIntersect;
         velocity -= dot(velocity, closestNorm) * closestNorm;
         delta = velocity * dt * timeLeft;
-        if (timeLeft > 0.001)
+        if (timeLeft > 0.0)
         {
             SweepBBox(world, delta, timeLeft, dt);
         }

@@ -67,7 +67,7 @@ void main()
 {
     vec3 texCoord = vec3(fUV, texLayer);
     vec4 texColor = texture(atlas, texCoord);
-    if(texColor.a <= 0.5) discard;
+    if(texColor.a <= 0.125) discard;
     FragColor = texColor * vec4(lightValue,lightValue,lightValue,1.0);
 }
 

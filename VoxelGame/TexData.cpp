@@ -62,3 +62,61 @@ void TexData::ResolveFaces(blockType& a, blockType& b)
         a = 0;
     }
 }
+
+UIData::UIData(std::vector<std::string> texNames)
+{
+    for (auto& texName : texNames)
+    {
+        auto img = Bitmap::FromFile("Assets/" + texName + ".png");
+        auto tex = Texture::FromBitmap(img);
+        tex.GenMipmaps(1, 0);
+        textures.push_back(tex);
+    }
+
+    vec2 quadPts[] =
+    {
+        {0,0},
+        {1,0},
+        {1,1},
+        {0,1},
+    };
+    quad = VArray<float>(4, 2, (float*)quadPts);
+
+    vec2 uvPts[] =
+    {
+        {0,0},
+        {1,0},
+        {1,1},
+        {0,1},
+    };
+    uvs = VArray<float>(4, 2, (float*)uvPts);
+}
+
+void UIData::SetQuadNegativeAligned(vec2 corner, vec2 size)
+{
+    vec2 quadPts[] =
+    {
+        corner,
+        corner + vec2{size.x,0},
+        corner + size,
+        corner + vec2{0,size.y},
+    };
+    quad = VArray<float>(4, 2, (float*)quadPts);
+}
+
+void UIData::SetQuadCentered(vec2 center, vec2 size)
+{
+    vec2 corner = center - size / 2.f;
+    SetQuadNegativeAligned(corner, size);
+}
+
+void UIData::BindQuad(ShaderProgram& uiShader, GLint posLoc, GLint uvLoc)
+{
+    uiShader.BindArray(quad, posLoc);
+    uiShader.BindArray(uvs, uvLoc);
+}
+
+void UIData::BindTex(ShaderProgram& uiShader, int texIndex)
+{
+    uiShader.BindTexture(textures[texIndex]);
+}

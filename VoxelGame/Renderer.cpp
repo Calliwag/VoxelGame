@@ -1,9 +1,12 @@
 #include "Renderer.hpp"
 #include "blockShader.hpp"
+#include "uiShader.hpp"
+#include "World.hpp"
 
-Renderer::Renderer(TexData texData)
+Renderer::Renderer(TexData texData, UIData uiData)
 {
     this->texData = texData;
+    this->uiData = uiData;
 
     blockShader = ShaderProgram(blockVertexShader, blockFragmentShader, false,
         { "matrix","offset","lightDir","atlas" }, // Uniforms
@@ -20,16 +23,17 @@ Renderer::Renderer(TexData texData)
     texIndexLoc = blockShader.GetVarLoc("texIndex");
     atlasLoc = blockShader.GetVarLoc("atlas");
 
-    blockShader.BindTextureArray(texData.texArray);
+    uiShader = ShaderProgram(uiVertexShader, uiFragmentShader, false,
+        { "matrix","tex","color" },
+        { "pos","uv" }
+    );
+    uiShader.BindProgram();
 
-    // Depth buffer
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    // Backface culling
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
-    glFrontFace(GL_CCW);
+    uiMatrixLoc = uiShader.GetVarLoc("matrix");
+    uiTexLoc = uiShader.GetVarLoc("tex");
+    uiPosLoc = uiShader.GetVarLoc("pos");
+    uiUVLoc = uiShader.GetVarLoc("uv");
+    uiColorLoc = uiShader.GetVarLoc("color");
 
     // Wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -37,11 +41,19 @@ Renderer::Renderer(TexData texData)
 
 void Renderer::Update(vec3 pos, vec3 dir, float fovY, float width, float height, vec3 lightDir)
 {
+    blockShader.BindProgram();
     vec3 up = { 0,0,1 };
     mat4x4 matrix = glm::perspective(3.1416f / 2, width / height, 0.1f, 1000.0f) * glm::lookAt(pos, pos + dir, up);
     blockShader.BindMat4x4(matrix, matrixLoc);
     blockShader.BindVec3(lightDir, lightDirLoc);
+    blockShader.BindTextureArray(texData.texArray);
     frustum = Frustum(pos, dir, 0.1f, 1000.0f, fovY, width / height);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glFrontFace(GL_CCW);
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
@@ -65,4 +77,35 @@ bool Renderer::DrawChunk(Chunk& chunk)
     blockShader.RenderTris(chunk.faceVertArray.count * 2);
 
     return true;
+}
+
+void Renderer::DrawUI(World& world)
+{
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+    world.window->SetBlendMode(BlendMode::Alpha);
+    float width = world.window->width;
+    float height = world.window->height;
+    uiShader.BindProgram();
+    mat3x3 scaleMatrix = mat3x3(
+        2 / width, 0, 0,
+        0, 2 / height, 0,
+        -1, -1, 1
+    );
+    mat3x3 shiftMatrix = mat3x3(
+        1, 0, -1,
+        0, 1, -1,
+        0, 0, 1
+    );
+    mat3x3 matrix = shiftMatrix * scaleMatrix;
+    uiShader.BindMat3x3(matrix, uiMatrixLoc);
+    uiData.BindQuad(uiShader, uiPosLoc, uiUVLoc);
+    uiShader.BindColor(Color::White(1.0), uiColorLoc);
+
+    // Draw crosshair
+    uiData.SetQuadCentered({ width / 2, height / 2 }, { height / 64, height / 64 });
+    uiData.BindQuad(uiShader, uiPosLoc, uiUVLoc);
+    uiData.BindTex(uiShader, 0);
+    uiShader.RenderQuad();
 }

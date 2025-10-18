@@ -3,6 +3,7 @@ Done:
 * Mouse button input
 * Scroll wheel input
 * Make every face of a block type match to a specific texture index to save space
+* Transparent blocks
 
 Todo:
 * Simple UI
@@ -11,7 +12,6 @@ Todo:
 * More block types (wood, stone, bricks, etc.)
 * Check creature collision for block placement/ store what creatures are in what chunks
 * Better world generation
-* Transparent blocks
 * Oddly shaped blocks
 * Inventory system/ items
 * Interactable blocks (storage, crafting, etc.)

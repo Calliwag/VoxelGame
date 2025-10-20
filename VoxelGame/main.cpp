@@ -10,7 +10,7 @@ int main()
 
     auto player = new PlayerCreature();
     w.AddCreature(player);
-    w.SetViewCreature(player);
+    w.SetPlayer(player);
 
     int frame = 0;
     bool shouldGenerateChunks = true;

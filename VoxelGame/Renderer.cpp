@@ -2,6 +2,7 @@
 #include "blockShader.hpp"
 #include "uiShader.hpp"
 #include "World.hpp"
+#include "PlayerCreature.hpp"
 
 Renderer::Renderer(TexData texData, UIData uiData)
 {
@@ -100,7 +101,6 @@ void Renderer::DrawUI(World& world)
     );
     mat3x3 matrix = shiftMatrix * scaleMatrix;
     uiShader.BindMat3x3(matrix, uiMatrixLoc);
-    uiData.BindQuad(uiShader, uiPosLoc, uiUVLoc);
     uiShader.BindColor(Color::White(1.0), uiColorLoc);
 
     // Draw crosshair
@@ -108,4 +108,15 @@ void Renderer::DrawUI(World& world)
     uiData.BindQuad(uiShader, uiPosLoc, uiUVLoc);
     uiData.BindTex(uiShader, 0);
     uiShader.RenderQuad();
+
+    // Draw active block
+    uiData.SetQuadPNAligned({ width,0 }, { height / 6, height / 6 });
+    uiData.BindQuad(uiShader, uiPosLoc, uiUVLoc);
+    auto layer = texData.GetBlockTexIndex(world.player->inv.currentBlock, 1);
+    if (layer != 0)
+    {
+        uiData.SetLayerTexture(texData.texArray, layer);
+        uiData.BindLayerTexture(uiShader);
+        uiShader.RenderQuad();
+    }
 }

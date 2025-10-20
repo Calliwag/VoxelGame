@@ -1,6 +1,7 @@
 #pragma once
 #include "World.hpp"
 #include "Inventory.hpp"
+#include "Creature.hpp"
 
 class PlayerCreature : public Creature
 {

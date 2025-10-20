@@ -136,6 +136,7 @@
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkManager.cpp" />
+    <ClCompile Include="Creature.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="PlayerCreature.cpp" />
     <ClCompile Include="TexData.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="SimView\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Creature.hpp" />
     <ClInclude Include="uiShader.hpp" />
     <ClInclude Include="AABB.hpp" />
     <ClInclude Include="blockShader.hpp" />

@@ -65,6 +65,8 @@ void TexData::ResolveFaces(blockType& a, blockType& b)
 
 UIData::UIData(std::vector<std::string> texNames)
 {
+    layerTexture = Texture(16, 16, nullptr);
+
     for (auto& texName : texNames)
     {
         auto img = Bitmap::FromFile("Assets/" + texName + ".png");
@@ -84,15 +86,15 @@ UIData::UIData(std::vector<std::string> texNames)
 
     vec2 uvPts[] =
     {
-        {0,0},
-        {1,0},
-        {1,1},
         {0,1},
+        {1,1},
+        {1,0},
+        {0,0},
     };
     uvs = VArray<float>(4, 2, (float*)uvPts);
 }
 
-void UIData::SetQuadNegativeAligned(vec2 corner, vec2 size)
+void UIData::SetQuadNNAligned(vec2 corner, vec2 size)
 {
     vec2 quadPts[] =
     {
@@ -104,10 +106,28 @@ void UIData::SetQuadNegativeAligned(vec2 corner, vec2 size)
     quad = VArray<float>(4, 2, (float*)quadPts);
 }
 
+void UIData::SetQuadNPAligned(vec2 corner, vec2 size)
+{
+    corner.y -= size.y;
+    SetQuadNNAligned(corner, size);
+}
+
+void UIData::SetQuadPNAligned(vec2 corner, vec2 size)
+{
+    corner.x -= size.x;
+    SetQuadNNAligned(corner, size);
+}
+
+void UIData::SetQuadPPAligned(vec2 corner, vec2 size)
+{
+    corner -= size;
+    SetQuadNNAligned(corner, size);
+}
+
 void UIData::SetQuadCentered(vec2 center, vec2 size)
 {
     vec2 corner = center - size / 2.f;
-    SetQuadNegativeAligned(corner, size);
+    SetQuadNNAligned(corner, size);
 }
 
 void UIData::BindQuad(ShaderProgram& uiShader, GLint posLoc, GLint uvLoc)
@@ -119,4 +139,14 @@ void UIData::BindQuad(ShaderProgram& uiShader, GLint posLoc, GLint uvLoc)
 void UIData::BindTex(ShaderProgram& uiShader, int texIndex)
 {
     uiShader.BindTexture(textures[texIndex]);
+}
+
+void UIData::SetLayerTexture(TextureArray& texArray, int layer)
+{
+    layerTexture = Texture::FromTextureArray(texArray, layer);
+}
+
+void UIData::BindLayerTexture(ShaderProgram& uiShader)
+{
+    uiShader.BindTexture(layerTexture);
 }

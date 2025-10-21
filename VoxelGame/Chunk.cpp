@@ -1,6 +1,6 @@
 #include "Chunk.hpp"
 
-void Chunk::GenFaceGrids(TexData& texData)
+void Chunk::GenFaceGrids(BlocksData& texData)
 {
     arraysGenerated = false;
 
@@ -118,7 +118,7 @@ void Chunk::GenFaceGridsSide(ivec3 neighborCoord)
     }
 }
 
-void Chunk::CheckNeighborFaces(Chunk* neighbor, TexData& texData)
+void Chunk::CheckNeighborFaces(Chunk* neighbor, BlocksData& texData)
 {
     if (neighbor == nullptr)
         return;
@@ -228,14 +228,9 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor, TexData& texData)
     }
 }
 
-void Chunk::GenFaces(TexData& texData)
+void Chunk::GenFaces(BlocksData& texData)
 {
-    nxyFaces = {};
-    pxyFaces = {};
-    nyzFaces = {};
-    pyzFaces = {};
-    nxzFaces = {};
-    pxzFaces = {};
+    faces = {};
     ivec3 size = { CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN };
     for(int x = 0; x < size.x; x++)
         for(int y = 0; y < size.y; y++)
@@ -254,7 +249,14 @@ void Chunk::GenFaces(TexData& texData)
                         iPos + ivec3{ 1,1,0 },
                         iPos + ivec3{ 0,1,0 }
                     };
-                    nxyFaces.emplace_back(verts, texData.GetBlockTexIndex(nxyType, 0));
+                    vec2* uvs = new vec2[]
+                    {
+                        {0,1},
+                        {1,1},
+                        {1,0},
+                        {0,0},
+                    };
+                    faces.emplace_back(verts, uvs, vec3(0,0,-1), texData.GetBlockTexIndex(nxyType, 0));
                 }
 
                 // Positive XY faces
@@ -268,7 +270,14 @@ void Chunk::GenFaces(TexData& texData)
                         iPos + ivec3{ 1,1,1 },
                         iPos + ivec3{ 1,0,1 }
                     };
-                    pxyFaces.emplace_back(verts, texData.GetBlockTexIndex(pxyType, 1));
+                    vec2* uvs = new vec2[]
+                    {
+                        {0,1},
+                        {0,0},
+                        {1,0},
+                        {1,1},
+                    };
+                    faces.emplace_back(verts, uvs, vec3(0, 0, 1), texData.GetBlockTexIndex(pxyType, 1));
                 }
 
                 // Negative YZ faces
@@ -282,7 +291,14 @@ void Chunk::GenFaces(TexData& texData)
                         iPos + ivec3{ 0,1,1 },
                         iPos + ivec3{ 0,0,1 }
                     };
-                    nyzFaces.emplace_back(verts, texData.GetBlockTexIndex(nyzType, 2));
+                    vec2* uvs = new vec2[]
+                    {
+                        {1,1},
+                        {0,1},
+                        {0,0},
+                        {1,0},
+                    };
+                    faces.emplace_back(verts, uvs, vec3(-1, 0, 0), texData.GetBlockTexIndex(nyzType, 2));
                 }
 
                 // Positive YZ faces
@@ -296,7 +312,14 @@ void Chunk::GenFaces(TexData& texData)
                         iPos + ivec3{ 1,1,1 },
                         iPos + ivec3{ 1,1,0 }
                     };
-                    pyzFaces.emplace_back(verts, texData.GetBlockTexIndex(pyzType, 3));
+                    vec2* uvs = new vec2[]
+                    {
+                        {0,1},
+                        {0,0},
+                        {1,0},
+                        {1,1},
+                    };
+                    faces.emplace_back(verts, uvs, vec3(1, 0, 0), texData.GetBlockTexIndex(pyzType, 3));
                 }
 
                 // Negative XZ faces
@@ -310,7 +333,14 @@ void Chunk::GenFaces(TexData& texData)
                         iPos + ivec3{ 1,0,1 },
                         iPos + ivec3{ 1,0,0 }
                     };
-                    nxzFaces.emplace_back(verts, texData.GetBlockTexIndex(nxzType, 4));
+                    vec2* uvs = new vec2[]
+                    {
+                        {0,1},
+                        {0,0},
+                        {1,0},
+                        {1,1},
+                    };
+                    faces.emplace_back(verts, uvs, vec3(0, -1, 0), texData.GetBlockTexIndex(nxzType, 4));
                 }
 
                 // Positive XZ faces
@@ -324,7 +354,14 @@ void Chunk::GenFaces(TexData& texData)
                         iPos + ivec3{ 1,1,1 },
                         iPos + ivec3{ 0,1,1 }
                     };
-                    pxzFaces.emplace_back(verts, texData.GetBlockTexIndex(pxzType, 5));
+                    vec2* uvs = new vec2[]
+                    {
+                        {1,1},
+                        {0,1},
+                        {0,0},
+                        {1,0},
+                    };
+                    faces.emplace_back(verts, uvs, vec3(0, 1, 0), texData.GetBlockTexIndex(pxzType, 5));
                 }
             }
 }
@@ -333,221 +370,48 @@ void Chunk::GenArrays()
 {
     arraysGenerated = true;
 
-    faceCount = (nxyFaces.size() + pxyFaces.size() + nyzFaces.size() + pyzFaces.size() + nxzFaces.size() + pxzFaces.size());
+    faceCount = faces.size();
     if (faceCount == 0)
         return;
     vec3* verts = new vec3[6 * faceCount];
-    int* norms = new int[6 * faceCount];
+    vec3* norms = new vec3[6 * faceCount];
     vec2* uvs = new vec2[6 * faceCount];
     int* texIndices = new int[6 * faceCount];
-    //int* faceType = new int[6 * faceCount];
     int vIndex = 0;
 
-    // Negative XY faces
-    for (auto& face : nxyFaces)
+    for (auto& face : faces)
     {
         auto& c0 = face.verts[0];
         auto& c1 = face.verts[1];
         auto& c2 = face.verts[2];
         auto& c3 = face.verts[3];
 
+        auto& uv0 = face.uvs[0];
+        auto& uv1 = face.uvs[1];
+        auto& uv2 = face.uvs[2];
+        auto& uv3 = face.uvs[3];
+
         verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c3.x - c0.x,c3.y - c0.y };
+        uvs[vIndex + 0] = uv0;
 
         verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c2.x - c0.x,c2.y - c0.y };
+        uvs[vIndex + 1] = uv1;
 
         verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c1.x - c0.x,c1.y - c0.y };
+        uvs[vIndex + 2] = uv2;
 
         verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c1.x - c0.x,c1.y - c0.y };
+        uvs[vIndex + 3] = uv2;
 
         verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c0.x - c0.x,c0.y - c0.y };
+        uvs[vIndex + 4] = uv3;
 
         verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c3.x - c0.x,c3.y - c0.y };
+        uvs[vIndex + 5] = uv0;
 
         for (int i = 0; i < 6; i++)
         {
-            norms[vIndex + i] = 0;
-            //faceType[vIndex + i] = face.type;
-            texIndices[vIndex + i] = face.texIdx;
-        }
-        vIndex += 6;
-    }
-
-    // Positive XY faces
-    for (auto& face : pxyFaces)
-    {
-        auto& c0 = face.verts[0];
-        auto& c1 = face.verts[1];
-        auto& c2 = face.verts[2];
-        auto& c3 = face.verts[3];
-
-        verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c1.x - c0.x, c1.y - c0.y };
-
-        verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c0.x - c0.x, c0.y - c0.y };
-
-        verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c3.x - c0.x, c3.y - c0.y };
-
-        verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c3.x - c0.x, c3.y - c0.y };
-
-        verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c2.x - c0.x, c2.y - c0.y };
-
-        verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c1.x - c0.x, c1.y - c0.y };
-
-        for (int i = 0; i < 6; i++)
-        {
-            norms[vIndex + i] = 1;
-            //faceType[vIndex + i] = face.type;
-            texIndices[vIndex + i] = face.texIdx;
-        }
-        vIndex += 6;
-    }
-
-    // Negative YZ faces
-    for (auto& face : nyzFaces)
-    {
-        auto& c0 = face.verts[0];
-        auto& c1 = face.verts[1];
-        auto& c2 = face.verts[2];
-        auto& c3 = face.verts[3];
-
-        verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c2.y - c0.y, c2.z - c0.z };
-
-        verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c3.y - c0.y, c3.z - c0.z };
-
-        verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c0.y - c0.y, c0.z - c0.z };
-
-        verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c0.y - c0.y, c0.z - c0.z };
-
-        verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c1.y - c0.y, c1.z - c0.z };
-
-        verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c2.y - c0.y, c2.z - c0.z };
-
-        for (int i = 0; i < 6; i++)
-        {
-            norms[vIndex + i] = 2;
-            //faceType[vIndex + i] = face.type;
-            texIndices[vIndex + i] = face.texIdx;
-        }
-        vIndex += 6;
-    }
-
-    // Positive YZ faces
-    for (auto& face : pyzFaces)
-    {
-        auto& c0 = face.verts[0];
-        auto& c1 = face.verts[1];
-        auto& c2 = face.verts[2];
-        auto& c3 = face.verts[3];
-
-        verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c1.y - c0.y, c1.z - c0.z };
-
-        verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c0.y - c0.y, c0.z - c0.z };
-
-        verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c3.y - c0.y, c3.z - c0.z };
-
-        verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c3.y - c0.y, c3.z - c0.z };
-
-        verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c2.y - c0.y, c2.z - c0.z };
-
-        verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c1.y - c0.y, c1.z - c0.z };
-
-        for (int i = 0; i < 6; i++)
-        {
-            norms[vIndex + i] = 3;
-            //faceType[vIndex + i] = face.type;
-            texIndices[vIndex + i] = face.texIdx;
-        }
-        vIndex += 6;
-    }
-
-    // Negative XZ faces
-    for (auto& face : nxzFaces)
-    {
-        auto& c0 = face.verts[0];
-        auto& c1 = face.verts[1];
-        auto& c2 = face.verts[2];
-        auto& c3 = face.verts[3];
-
-        verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c1.x - c0.x, c1.z - c0.z };
-
-        verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c0.x - c0.x, c0.z - c0.z };
-
-        verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c3.x - c0.x, c3.z - c0.z };
-
-        verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c3.x - c0.x, c3.z - c0.z };
-
-        verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c2.x - c0.x, c2.z - c0.z };
-
-        verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c1.x - c0.x, c1.z - c0.z };
-
-        for (int i = 0; i < 6; i++)
-        {
-            norms[vIndex + i] = 4;
-            //faceType[vIndex + i] = face.type;
-            texIndices[vIndex + i] = face.texIdx;
-        }
-        vIndex += 6;
-    }
-
-    // Positive XZ faces
-    for (auto& face : pxzFaces)
-    {
-        auto& c0 = face.verts[0];
-        auto& c1 = face.verts[1];
-        auto& c2 = face.verts[2];
-        auto& c3 = face.verts[3];
-
-        verts[vIndex + 0] = c0;
-        uvs[vIndex + 0] = { c2.x - c0.x, c2.z - c0.z };
-
-        verts[vIndex + 1] = c1;
-        uvs[vIndex + 1] = { c3.x - c0.x, c3.z - c0.z };
-
-        verts[vIndex + 2] = c2;
-        uvs[vIndex + 2] = { c0.x - c0.x, c0.z - c0.z };
-
-        verts[vIndex + 3] = c2;
-        uvs[vIndex + 3] = { c0.x - c0.x, c0.z - c0.z };
-
-        verts[vIndex + 4] = c3;
-        uvs[vIndex + 4] = { c1.x - c0.x, c1.z - c0.z };
-
-        verts[vIndex + 5] = c0;
-        uvs[vIndex + 5] = { c2.x - c0.x, c2.z - c0.z };
-
-        for (int i = 0; i < 6; i++)
-        {
-            norms[vIndex + i] = 5;
-            //faceType[vIndex + i] = face.type;
+            norms[vIndex + i] = face.norm;
             texIndices[vIndex + i] = face.texIdx;
         }
         vIndex += 6;
@@ -555,9 +419,8 @@ void Chunk::GenArrays()
 
     faceVertArray.Destroy();
     faceVertArray = VArray<float>(6 * faceCount, 3, (float*)verts);
-    faceNormArray = VArray<int>(6 * faceCount, 1, norms);
+    faceNormArray = VArray<float>(6 * faceCount, 3, (float*)norms);
     faceUVArray = VArray<float>(6 * faceCount, 2, (float*)uvs);
-    //faceTypeArray = VArray<int>(6 * faceCount, 1, faceType);
     faceTexArray = VArray<int>(6 * faceCount, 1, texIndices);
 }
 

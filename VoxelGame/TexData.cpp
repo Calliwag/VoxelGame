@@ -1,6 +1,6 @@
 #include "TexData.hpp"
 
-TexData::TexData(std::vector<std::string> textures)
+BlocksData::BlocksData(std::vector<std::string> textures)
 {
     int texCount = textures.size();
     texArray = TextureArray(16, 16, texCount, 5);
@@ -13,7 +13,7 @@ TexData::TexData(std::vector<std::string> textures)
     texArray.GenMipmaps(0);
 }
 
-void TexData::LinkBlockTextures(blockType type, int* texIds)
+void BlocksData::LinkBlockTextures(blockType type, int* texIds)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -21,22 +21,22 @@ void TexData::LinkBlockTextures(blockType type, int* texIds)
     }
 }
 
-void TexData::MarkBlockTransparent(blockType type)
+void BlocksData::MarkBlockTransparent(blockType type)
 {
     blockTransparent[type] = true;
 }
 
-int TexData::GetBlockTexIndex(blockType type, int face)
+int BlocksData::GetBlockTexIndex(blockType type, int face)
 {
     return blockTexture[type][face];
 }
 
-bool TexData::IsBlockTransparent(blockType type)
+bool BlocksData::IsBlockTransparent(blockType type)
 {
     return blockTransparent[type];
 }
 
-void TexData::ResolveFaces(blockType& a, blockType& b)
+void BlocksData::ResolveFaces(blockType& a, blockType& b)
 {
     if (a == 0)
     {

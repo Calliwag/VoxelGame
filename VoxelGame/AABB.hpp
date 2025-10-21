@@ -24,6 +24,7 @@ public:
 		return AABB(pos, size);
 	}
 	
+	bool Intersects(AABB other);
 	float SweepCollision(vec3 thisDelta, AABB other, vec3& normal);
 	AABB BroadExpand(vec3 delta);
 };

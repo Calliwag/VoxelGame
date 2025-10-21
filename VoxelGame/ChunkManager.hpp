@@ -38,14 +38,14 @@ public:
 	ChunkManager(Generator* gen) : gen(gen) {}
 	void UpdateList(vec3 pos, float radius, float verticalRadius);
 	void UnloadDistant(vec3 pos, float radius, float verticalRadius);
-	void GenerateOne(vec3 pos, TexData& texData);
-	void MeshChunk(ivec3 chunkCoord, TexData& texData);
-	void MeshChunkModified(ivec3 chunkCoord, TexData& texData);
+	void GenerateOne(vec3 pos, BlocksData& texData);
+	void MeshChunk(ivec3 chunkCoord, BlocksData& texData);
+	void MeshChunkModified(ivec3 chunkCoord, BlocksData& texData);
 
 	RayIter GetRayIter(vec3 start, vec3 dir);
 	ivec3 GetBlockCoord(vec3 pos);
 	ivec3 GetChunkCoord(vec3 pos);
-	void SetBlock(ivec3 coord, blockType value, TexData& texData);
+	void SetBlock(ivec3 coord, blockType value, BlocksData& texData);
 
 	bool IsChunkLoaded(ivec3 chunkCoord);
 	bool IsBlockSolid(ivec3 worldCoordinate);

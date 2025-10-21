@@ -1,6 +1,19 @@
 #include "AABB.hpp"
 #include <limits>
 
+bool IntervalIntersect(float i1, float j1, float i2, float j2)
+{
+    return !(i1 - j2 > -0.000001 || i2 - j1 > -0.000001);
+}
+
+bool AABB::Intersects(AABB other)
+{
+    bool intX = IntervalIntersect(pos.x, pos.x + size.x, other.pos.x, other.pos.x + other.size.x);
+    bool intY = IntervalIntersect(pos.y, pos.y + size.y, other.pos.y, other.pos.y + other.size.y);
+    bool intZ = IntervalIntersect(pos.z, pos.z + size.z, other.pos.z, other.pos.z + other.size.z);
+    return intX && intY && intZ;
+}
+
 float AABB::SweepCollision(vec3 thisDelta, AABB other, vec3& normal)
 {
     vec3 distEntry = { 0,0,0 };

@@ -46,7 +46,7 @@ void ChunkManager::UnloadDistant(vec3 pos, float radius, float verticalRadius)
 	}
 }
 
-void ChunkManager::GenerateOne(vec3 pos, TexData& texData)
+void ChunkManager::GenerateOne(vec3 pos, BlocksData& texData)
 {
 	if (toGenerateList.size() == 0)
 		return;
@@ -59,7 +59,7 @@ void ChunkManager::GenerateOne(vec3 pos, TexData& texData)
 	toGenerateList.pop();
 }
 
-void ChunkManager::MeshChunk(ivec3 chunkCoord, TexData& texData)
+void ChunkManager::MeshChunk(ivec3 chunkCoord, BlocksData& texData)
 {
 	if (!chunks.contains(chunkCoord))
 		return;
@@ -115,7 +115,7 @@ void ChunkManager::MeshChunk(ivec3 chunkCoord, TexData& texData)
 	chunk.GenFaces(texData);
 }
 
-void ChunkManager::MeshChunkModified(ivec3 chunkCoord, TexData& texData)
+void ChunkManager::MeshChunkModified(ivec3 chunkCoord, BlocksData& texData)
 {
 	if (!chunks.contains(chunkCoord))
 		return;
@@ -200,7 +200,7 @@ ivec3 ChunkManager::GetChunkCoord(vec3 pos)
 	return glm::floor(pos / (float)CHUNK_SPAN);
 }
 
-void ChunkManager::SetBlock(ivec3 coord, blockType value, TexData& texData)
+void ChunkManager::SetBlock(ivec3 coord, blockType value, BlocksData& texData)
 {
 	auto chunkCoord = GetChunkCoord(coord);
 	if (!chunks.contains(chunkCoord))

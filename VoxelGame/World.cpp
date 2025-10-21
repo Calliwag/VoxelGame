@@ -16,7 +16,7 @@ World::World()
     window->SetBlendMode(BlendMode::Alpha);
     window->BeginContext();
 
-    TexData texData({ "noTex","dirt_top","dirt_side","grass_top","grass_side","rock_top","rock_side","wood","brick","glass"});
+    BlocksData texData({ "noTex","dirt_top","dirt_side","grass_top","grass_side","rock_top","rock_side","wood","brick","glass"});
     texData.MarkBlockTransparent(0);
     int map1[] = { 1,1,2,2,2,2 };
     texData.LinkBlockTextures(1, map1);
@@ -63,6 +63,22 @@ bool World::ShouldQuit()
 
 void World::Step(float dt)
 {
+    chunkCreatures = {};
+    for (auto* creature : creatures)
+    {
+        auto cBox = creature->GetAABB();
+        ivec3 minB = floor(cBox.pos);
+        ivec3 maxB = ceil(cBox.pos + cBox.size);
+        ivec3 minC = cm.GetChunkCoord(minB);
+        ivec3 maxC = cm.GetChunkCoord(maxB);
+
+        for (int x = minC.x; x <= maxC.x; x++)
+            for (int y = minC.y; y <= maxC.y; y++)
+                for (int z = minC.z; z <= maxC.z; z++)
+                {
+                    chunkCreatures[ivec3{ x,y,z }].push_back(creature);
+                }
+    }
     for (auto* creature : creatures)
     {
         creature->Act(*this);

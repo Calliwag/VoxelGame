@@ -4,19 +4,19 @@
 #include "World.hpp"
 #include "PlayerCreature.hpp"
 
-Renderer::Renderer(TexData texData, UIData uiData)
+Renderer::Renderer(BlocksData texData, UIData uiData)
 {
     this->texData = texData;
     this->uiData = uiData;
 
     blockShader = ShaderProgram(blockVertexShader, blockFragmentShader, false,
         { "matrix","offset","lightDir","atlas" }, // Uniforms
-        { "pos","normIdx","texIndex","uv" }  // Attributes
+        { "pos","norm","texIndex","uv" }  // Attributes
     );
     blockShader.BindProgram();
 
     matrixLoc = blockShader.GetVarLoc("matrix");
-    normLoc = blockShader.GetVarLoc("normIdx");
+    normLoc = blockShader.GetVarLoc("norm");
     offsetLoc = blockShader.GetVarLoc("offset");
     posLoc = blockShader.GetVarLoc("pos");
     uvLoc = blockShader.GetVarLoc("uv");

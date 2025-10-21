@@ -4,7 +4,7 @@
 
 using namespace SimView;
 
-class TexData
+class BlocksData
 {
 	std::map<blockType, std::map<int, int>> blockTexture = {};
 	std::map<blockType, bool> blockTransparent = {};
@@ -12,8 +12,8 @@ class TexData
 public:
 	TextureArray texArray;
 
-	TexData() {}
-	TexData(std::vector<std::string> textures);
+	BlocksData() {}
+	BlocksData(std::vector<std::string> textures);
 	void LinkBlockTextures(blockType type, int* texIds);
 	void MarkBlockTransparent(blockType type);
 	int GetBlockTexIndex(blockType type, int face);

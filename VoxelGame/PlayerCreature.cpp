@@ -101,20 +101,33 @@ void PlayerCreature::PlaceBlock(World& world, u8 type)
     {
         if (rIter.faceDist >= 4)
         {
-            break;
+            return;
         }
         if (rIter.chunk == nullptr)
         {
-            break;
+            return;
         }
         if (rIter.chunk->data.At(rIter.blockCoord) != 0)
         {
-            world.SetBlock(last, type);
             break;
         }
         last = rIter.pos;
         rIter.Next();
     }
+
+    ivec3 chunkCoord = world.cm.GetChunkCoord(last);
+    if (world.chunkCreatures.contains(chunkCoord))
+    {
+        auto blockAABB = world.cm.GetBlockAABB(last);
+        auto& creatures = world.chunkCreatures.at(chunkCoord);
+        for (auto* creature : creatures)
+        {
+            if (creature->GetAABB().Intersects(blockAABB))
+                return;
+        }
+    }
+
+    world.SetBlock(last, type);
 }
 
 void PlayerCreature::BreakBlock(World& world)
@@ -124,16 +137,16 @@ void PlayerCreature::BreakBlock(World& world)
     {
         if (rIter.faceDist >= 4)
         {
-            break;
+            return;
         }
         if (rIter.chunk == nullptr)
         {
-            break;
+            return;
         }
         if (rIter.chunk->data.At(rIter.blockCoord) != 0)
         {
             world.SetBlock(rIter.pos, 0);
-            break;
+            return;
         }
         rIter.Next();
     }

@@ -1,6 +1,6 @@
-#include "TexData.hpp"
+#include "Resources.hpp"
 
-BlocksData::BlocksData(std::vector<std::string> textures)
+BlockResources::BlockResources(std::vector<std::string> textures)
 {
     int texCount = textures.size();
     texArray = TextureArray(16, 16, texCount, 5);
@@ -13,7 +13,7 @@ BlocksData::BlocksData(std::vector<std::string> textures)
     texArray.GenMipmaps(0);
 }
 
-void BlocksData::LinkBlockTextures(blockType type, int* texIds)
+void BlockResources::LinkBlockTextures(blockType type, int* texIds)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -21,22 +21,22 @@ void BlocksData::LinkBlockTextures(blockType type, int* texIds)
     }
 }
 
-void BlocksData::MarkBlockTransparent(blockType type)
+void BlockResources::MarkBlockTransparent(blockType type)
 {
     blockTransparent[type] = true;
 }
 
-int BlocksData::GetBlockTexIndex(blockType type, int face)
+int BlockResources::GetBlockTexIndex(blockType type, int face)
 {
     return blockTexture[type][face];
 }
 
-bool BlocksData::IsBlockTransparent(blockType type)
+bool BlockResources::IsBlockTransparent(blockType type)
 {
     return blockTransparent[type];
 }
 
-void BlocksData::ResolveFaces(blockType& a, blockType& b)
+void BlockResources::ResolveFaces(blockType& a, blockType& b)
 {
     if (a == 0)
     {
@@ -63,7 +63,7 @@ void BlocksData::ResolveFaces(blockType& a, blockType& b)
     }
 }
 
-UIData::UIData(std::vector<std::string> texNames)
+UIResources::UIResources(std::vector<std::string> texNames)
 {
     layerTexture = Texture(16, 16, nullptr);
 
@@ -94,7 +94,7 @@ UIData::UIData(std::vector<std::string> texNames)
     uvs = VArray<float>(4, 2, (float*)uvPts);
 }
 
-void UIData::SetQuadNNAligned(vec2 corner, vec2 size)
+void UIResources::SetQuadNNAligned(vec2 corner, vec2 size)
 {
     vec2 quadPts[] =
     {
@@ -106,47 +106,47 @@ void UIData::SetQuadNNAligned(vec2 corner, vec2 size)
     quad = VArray<float>(4, 2, (float*)quadPts);
 }
 
-void UIData::SetQuadNPAligned(vec2 corner, vec2 size)
+void UIResources::SetQuadNPAligned(vec2 corner, vec2 size)
 {
     corner.y -= size.y;
     SetQuadNNAligned(corner, size);
 }
 
-void UIData::SetQuadPNAligned(vec2 corner, vec2 size)
+void UIResources::SetQuadPNAligned(vec2 corner, vec2 size)
 {
     corner.x -= size.x;
     SetQuadNNAligned(corner, size);
 }
 
-void UIData::SetQuadPPAligned(vec2 corner, vec2 size)
+void UIResources::SetQuadPPAligned(vec2 corner, vec2 size)
 {
     corner -= size;
     SetQuadNNAligned(corner, size);
 }
 
-void UIData::SetQuadCentered(vec2 center, vec2 size)
+void UIResources::SetQuadCentered(vec2 center, vec2 size)
 {
     vec2 corner = center - size / 2.f;
     SetQuadNNAligned(corner, size);
 }
 
-void UIData::BindQuad(ShaderProgram& uiShader, GLint posLoc, GLint uvLoc)
+void UIResources::BindQuad(ShaderProgram& uiShader, GLint posLoc, GLint uvLoc)
 {
     uiShader.BindArray(quad, posLoc);
     uiShader.BindArray(uvs, uvLoc);
 }
 
-void UIData::BindTex(ShaderProgram& uiShader, int texIndex)
+void UIResources::BindTex(ShaderProgram& uiShader, int texIndex)
 {
     uiShader.BindTexture(textures[texIndex]);
 }
 
-void UIData::SetLayerTexture(TextureArray& texArray, int layer)
+void UIResources::SetLayerTexture(TextureArray& texArray, int layer)
 {
     layerTexture = Texture::FromTextureArray(texArray, layer);
 }
 
-void UIData::BindLayerTexture(ShaderProgram& uiShader)
+void UIResources::BindLayerTexture(ShaderProgram& uiShader)
 {
     uiShader.BindTexture(layerTexture);
 }

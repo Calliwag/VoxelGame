@@ -8,7 +8,7 @@ using namespace glm;
 
 typedef SimView::u16 blockType;
 
-constexpr int CHUNK_SPAN = 16;
+constexpr int CHUNK_SPAN = 16; // Default 16
 constexpr int CHUNK_AREA = CHUNK_SPAN * CHUNK_SPAN;
 constexpr int CHUNK_VOLUME = CHUNK_AREA * CHUNK_SPAN;
 

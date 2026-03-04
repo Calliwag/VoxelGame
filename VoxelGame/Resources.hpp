@@ -4,7 +4,7 @@
 
 using namespace SimView;
 
-class BlocksData
+class BlockResources
 {
 	std::map<blockType, std::map<int, int>> blockTexture = {};
 	std::map<blockType, bool> blockTransparent = {};
@@ -12,8 +12,8 @@ class BlocksData
 public:
 	TextureArray texArray;
 
-	BlocksData() {}
-	BlocksData(std::vector<std::string> textures);
+	BlockResources() {}
+	BlockResources(std::vector<std::string> textures);
 	void LinkBlockTextures(blockType type, int* texIds);
 	void MarkBlockTransparent(blockType type);
 	int GetBlockTexIndex(blockType type, int face);
@@ -21,7 +21,7 @@ public:
 	void ResolveFaces(blockType& a, blockType& b);
 };
 
-class UIData
+class UIResources
 {
 	std::vector<Texture> textures = {};
 	Texture layerTexture;
@@ -29,8 +29,8 @@ class UIData
 	VArray<float> uvs;
 
 public:
-	UIData() {};
-	UIData(std::vector<std::string> texNames);
+	UIResources() {};
+	UIResources(std::vector<std::string> texNames);
 	void SetQuadNNAligned(vec2 corner, vec2 size);
 	void SetQuadNPAligned(vec2 corner, vec2 size);
 	void SetQuadPNAligned(vec2 corner, vec2 size);

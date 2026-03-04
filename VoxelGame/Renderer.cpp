@@ -4,10 +4,10 @@
 #include "World.hpp"
 #include "PlayerCreature.hpp"
 
-Renderer::Renderer(BlocksData texData, UIData uiData)
+Renderer::Renderer(BlockResources blockResources, UIResources uiResources)
 {
-    this->texData = texData;
-    this->uiData = uiData;
+    this->blockResources = blockResources;
+    this->uiResources = uiResources;
 
     blockShader = ShaderProgram(blockVertexShader, blockFragmentShader, false,
         { "matrix","offset","lightDir","atlas" }, // Uniforms
@@ -47,7 +47,7 @@ void Renderer::Update(vec3 pos, vec3 dir, float fovY, float width, float height,
     mat4x4 matrix = glm::perspective(3.1416f / 2, width / height, 0.1f, 1000.0f) * glm::lookAt(pos, pos + dir, up);
     blockShader.BindMat4x4(matrix, matrixLoc);
     blockShader.BindVec3(lightDir, lightDirLoc);
-    blockShader.BindTextureArray(texData.texArray);
+    blockShader.BindTextureArray(blockResources.texArray);
     frustum = Frustum(pos, dir, 0.1f, 1000.0f, fovY, width / height);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -104,19 +104,19 @@ void Renderer::DrawUI(World& world)
     uiShader.BindColor(Color::White(1.0), uiColorLoc);
 
     // Draw crosshair
-    uiData.SetQuadCentered({ width / 2, height / 2 }, { height / 64, height / 64 });
-    uiData.BindQuad(uiShader, uiPosLoc, uiUVLoc);
-    uiData.BindTex(uiShader, 0);
+    uiResources.SetQuadCentered({ width / 2, height / 2 }, { height / 64, height / 64 });
+    uiResources.BindQuad(uiShader, uiPosLoc, uiUVLoc);
+    uiResources.BindTex(uiShader, 0);
     uiShader.RenderQuad();
 
     // Draw active block
-    uiData.SetQuadPNAligned({ width,0 }, { height / 6, height / 6 });
-    uiData.BindQuad(uiShader, uiPosLoc, uiUVLoc);
-    auto layer = texData.GetBlockTexIndex(world.player->inv.currentBlock, 1);
+    uiResources.SetQuadPNAligned({ width,0 }, { height / 6, height / 6 });
+    uiResources.BindQuad(uiShader, uiPosLoc, uiUVLoc);
+    auto layer = blockResources.GetBlockTexIndex(world.player->inv.currentBlock, 1);
     if (layer != 0)
     {
-        uiData.SetLayerTexture(texData.texArray, layer);
-        uiData.BindLayerTexture(uiShader);
+        uiResources.SetLayerTexture(blockResources.texArray, layer);
+        uiResources.BindLayerTexture(uiShader);
         uiShader.RenderQuad();
     }
 }

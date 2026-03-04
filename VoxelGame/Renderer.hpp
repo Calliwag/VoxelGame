@@ -20,7 +20,7 @@ public:
 	GLint texIndexLoc;
 	GLint uvLoc;
 	GLint atlasLoc;
-	BlocksData texData;
+	BlockResources blockResources;
 
 	// 2D rendering
 	ShaderProgram uiShader;
@@ -29,10 +29,10 @@ public:
 	GLint uiColorLoc;
 	GLint uiTexLoc;
 	GLint uiMatrixLoc;
-	UIData uiData;
+	UIResources uiResources;
 
 	Renderer() {}
-	Renderer(BlocksData texData, UIData uiData);
+	Renderer(BlockResources blockResources, UIResources uiResources);
 
 	void Update(vec3 pos, vec3 dir, float fovY, float width, float height, vec3 lightDir);
 	bool DrawChunk(Chunk& chunk);

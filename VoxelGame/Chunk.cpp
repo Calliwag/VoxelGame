@@ -1,6 +1,6 @@
 #include "Chunk.hpp"
 
-void Chunk::GenFaceGrids(BlocksData& texData)
+void Chunk::GenFaceGrids(BlockResources& blockResources)
 {
     arraysGenerated = false;
 
@@ -24,7 +24,7 @@ void Chunk::GenFaceGrids(BlocksData& texData)
                     if (z != 0)
                     {
                         auto& pType = pxyFaceGrid.At({ x,y,z - 1 });
-                        texData.ResolveFaces(mType, pType);
+                        blockResources.ResolveFaces(mType, pType);
                     }
 
                     pxyFaceGrid.At({ x, y, z }) = type; // positive face
@@ -36,7 +36,7 @@ void Chunk::GenFaceGrids(BlocksData& texData)
                     if (x != 0)
                     {
                         auto& pType = pyzFaceGrid.At({ x - 1,y,z });
-                        texData.ResolveFaces(mType, pType);
+                        blockResources.ResolveFaces(mType, pType);
                     }
 
                     pyzFaceGrid.At({ x, y, z }) = type; // positive face
@@ -48,7 +48,7 @@ void Chunk::GenFaceGrids(BlocksData& texData)
                     if (y != 0)
                     {
                         auto& pType = pxzFaceGrid.At({ x,y - 1,z });
-                        texData.ResolveFaces(mType, pType);
+                        blockResources.ResolveFaces(mType, pType);
                     }
 
                     pxzFaceGrid.At({ x, y, z }) = type; // positive face
@@ -118,7 +118,7 @@ void Chunk::GenFaceGridsSide(ivec3 neighborCoord)
     }
 }
 
-void Chunk::CheckNeighborFaces(Chunk* neighbor, BlocksData& texData)
+void Chunk::CheckNeighborFaces(Chunk* neighbor, BlockResources& blockResources)
 {
     if (neighbor == nullptr)
         return;
@@ -155,7 +155,7 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor, BlocksData& texData)
                     //{
                     //    thisType = 0;
                     //}
-                    texData.ResolveFaces(thisType, otherType);
+                    blockResources.ResolveFaces(thisType, otherType);
                 }
             }
         return;
@@ -188,7 +188,7 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor, BlocksData& texData)
                     //{
                     //    thisType = 0;
                     //}
-                    texData.ResolveFaces(thisType, otherType);
+                    blockResources.ResolveFaces(thisType, otherType);
                 }
             }
         return;
@@ -221,14 +221,14 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor, BlocksData& texData)
                     //{
                     //    thisType = 0;
                     //}
-                    texData.ResolveFaces(thisType, otherType);
+                    blockResources.ResolveFaces(thisType, otherType);
                 }
             }
         return;
     }
 }
 
-void Chunk::GenFaces(BlocksData& texData)
+void Chunk::GenFaces(BlockResources& blockResources)
 {
     faces = {};
     ivec3 size = { CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN };
@@ -256,7 +256,7 @@ void Chunk::GenFaces(BlocksData& texData)
                         {1,0},
                         {0,0},
                     };
-                    faces.emplace_back(verts, uvs, vec3(0,0,-1), texData.GetBlockTexIndex(nxyType, 0));
+                    faces.emplace_back(verts, uvs, vec3(0,0,-1), blockResources.GetBlockTexIndex(nxyType, 0));
                 }
 
                 // Positive XY faces
@@ -277,7 +277,7 @@ void Chunk::GenFaces(BlocksData& texData)
                         {1,0},
                         {1,1},
                     };
-                    faces.emplace_back(verts, uvs, vec3(0, 0, 1), texData.GetBlockTexIndex(pxyType, 1));
+                    faces.emplace_back(verts, uvs, vec3(0, 0, 1), blockResources.GetBlockTexIndex(pxyType, 1));
                 }
 
                 // Negative YZ faces
@@ -298,7 +298,7 @@ void Chunk::GenFaces(BlocksData& texData)
                         {0,0},
                         {1,0},
                     };
-                    faces.emplace_back(verts, uvs, vec3(-1, 0, 0), texData.GetBlockTexIndex(nyzType, 2));
+                    faces.emplace_back(verts, uvs, vec3(-1, 0, 0), blockResources.GetBlockTexIndex(nyzType, 2));
                 }
 
                 // Positive YZ faces
@@ -319,7 +319,7 @@ void Chunk::GenFaces(BlocksData& texData)
                         {1,0},
                         {1,1},
                     };
-                    faces.emplace_back(verts, uvs, vec3(1, 0, 0), texData.GetBlockTexIndex(pyzType, 3));
+                    faces.emplace_back(verts, uvs, vec3(1, 0, 0), blockResources.GetBlockTexIndex(pyzType, 3));
                 }
 
                 // Negative XZ faces
@@ -340,7 +340,7 @@ void Chunk::GenFaces(BlocksData& texData)
                         {1,0},
                         {1,1},
                     };
-                    faces.emplace_back(verts, uvs, vec3(0, -1, 0), texData.GetBlockTexIndex(nxzType, 4));
+                    faces.emplace_back(verts, uvs, vec3(0, -1, 0), blockResources.GetBlockTexIndex(nxzType, 4));
                 }
 
                 // Positive XZ faces
@@ -361,7 +361,7 @@ void Chunk::GenFaces(BlocksData& texData)
                         {0,0},
                         {1,0},
                     };
-                    faces.emplace_back(verts, uvs, vec3(0, 1, 0), texData.GetBlockTexIndex(pxzType, 5));
+                    faces.emplace_back(verts, uvs, vec3(0, 1, 0), blockResources.GetBlockTexIndex(pxzType, 5));
                 }
             }
 }

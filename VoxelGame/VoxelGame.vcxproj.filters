@@ -63,7 +63,7 @@
     <ClCompile Include="Inventory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TexData.cpp">
+    <ClCompile Include="Resources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Creature.cpp">
@@ -116,7 +116,7 @@
     <ClInclude Include="blockShader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TexData.hpp">
+    <ClInclude Include="Resources.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Definitions.hpp">

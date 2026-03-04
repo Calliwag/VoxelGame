@@ -17,7 +17,7 @@ public:
 	float sunHAngle = 3.1416 / 6.f;
 	float sunVAngle = 3.1416 / 4.f;
 	
-	World();
+	World(Window* Window, Renderer& Renderer, Generator* Generator);
 	~World();
 	void AddCreature(Creature* creature);
 	void SetPlayer(PlayerCreature* player);

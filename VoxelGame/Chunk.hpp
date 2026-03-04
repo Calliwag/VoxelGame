@@ -8,7 +8,7 @@
 #include "SimView/SimView.hpp"
 #include "Generator.hpp"
 #include <string>
-#include "TexData.hpp"
+#include "Resources.hpp"
 
 class Chunk
 {
@@ -24,13 +24,13 @@ public:
 	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pyzFaceGrid;
 	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxzFaceGrid;
 	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxzFaceGrid;
-	void GenFaceGrids(BlocksData& texData);
+	void GenFaceGrids(BlockResources& blockResources);
 	void GenFaceGridsSide(ivec3 neighborCoord);
-    void CheckNeighborFaces(Chunk* neighbor, BlocksData& texData);
+    void CheckNeighborFaces(Chunk* neighbor, BlockResources& blockResources);
 
 	// Face lists
 	std::vector<Face> faces;
-	void GenFaces(BlocksData& texData);
+	void GenFaces(BlockResources& blockResources);
 
 	VArray<float> faceVertArray;
 	VArray<float> faceNormArray;

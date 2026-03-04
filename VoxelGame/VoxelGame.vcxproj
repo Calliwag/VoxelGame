@@ -139,7 +139,7 @@
     <ClCompile Include="Creature.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="PlayerCreature.cpp" />
-    <ClCompile Include="TexData.cpp" />
+    <ClCompile Include="Resources.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="Generator.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -162,7 +162,7 @@
     <ClInclude Include="Definitions.hpp" />
     <ClInclude Include="Inventory.hpp" />
     <ClInclude Include="PlayerCreature.hpp" />
-    <ClInclude Include="TexData.hpp" />
+    <ClInclude Include="Resources.hpp" />
     <ClInclude Include="World.hpp" />
     <ClInclude Include="Face.hpp" />
     <ClInclude Include="Frustum.hpp" />

@@ -4,39 +4,12 @@
 #include "Creature.hpp"
 #include "PlayerCreature.hpp"
 
-World::World()
+World::World(Window* Window, Renderer& Renderer, Generator* Generator)
 {
-    Core::Init();
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    window = new Window(400, 400, "VoxelGame");
-    glEnable(GL_MULTISAMPLE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    window->SetBlendMode(BlendMode::Alpha);
-    window->BeginContext();
-
-    BlocksData texData({ "noTex","dirt_top","dirt_side","grass_top","grass_side","rock_top","rock_side","wood","brick","glass"});
-    texData.MarkBlockTransparent(0);
-    int map1[] = { 1,1,2,2,2,2 };
-    texData.LinkBlockTextures(1, map1);
-    int map2[] = { 1,3,4,4,4,4 };
-    texData.LinkBlockTextures(2, map2);
-    int map3[] = { 5,5,6,6,6,6 };
-    texData.LinkBlockTextures(3, map3);
-    int map4[] = { 7,7,7,7,7,7 };
-    texData.LinkBlockTextures(4, map4);
-    int map5[] = { 8,8,8,8,8,8 };
-    texData.LinkBlockTextures(5, map5);
-    int map6[] = { 9,9,9,9,9,9 };
-    texData.LinkBlockTextures(6, map6);
-    texData.MarkBlockTransparent(6);
-
-    UIData uiData({ "crosshair" });
-
-    r = Renderer(texData, uiData);
-    Generator* gen = new WaveGen(0, 8, 128, 128);
-    cm = ChunkManager(gen);
+    window = Window;
+    r = Renderer;
+    cm = ChunkManager(Generator);
+    player = nullptr;
 }
 
 World::~World()
@@ -118,7 +91,7 @@ void World::GenChunks(int count)
 {
     for (int i = 0; i < count; i++)
     {
-        cm.GenerateOne(player->position, r.texData);
+        cm.GenerateOne(player->position, r.blockResources);
     }
 }
 
@@ -132,5 +105,5 @@ void World::UpdateToGenerateList()
 
 void World::SetBlock(ivec3 coord, blockType value)
 {
-    cm.SetBlock(coord, value, r.texData);
+    cm.SetBlock(coord, value, r.blockResources);
 }

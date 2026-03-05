@@ -24,7 +24,7 @@ void Chunk::GenFaceGrids(BlockResources& blockResources)
                     if (z != 0)
                     {
                         auto& pID = pxyFaceGrid.At({ x,y,z - 1 });
-                        blockResources.ResolveCoplanarFaces(mID, pID, GetBlockGlobalID(blockResources, mID), GetBlockGlobalID(blockResources, pID));
+                        blockResources.ResolveCoplanarFaces(mID, pID);
                     }
 
                     pxyFaceGrid.At({ x, y, z }) = id; // positive face
@@ -36,7 +36,7 @@ void Chunk::GenFaceGrids(BlockResources& blockResources)
                     if (x != 0)
                     {
                         auto& pID = pyzFaceGrid.At({ x - 1,y,z });
-                        blockResources.ResolveCoplanarFaces(mID, pID, GetBlockGlobalID(blockResources, mID), GetBlockGlobalID(blockResources, pID));
+                        blockResources.ResolveCoplanarFaces(mID, pID);
                     }
 
                     pyzFaceGrid.At({ x, y, z }) = id; // positive face
@@ -48,7 +48,7 @@ void Chunk::GenFaceGrids(BlockResources& blockResources)
                     if (y != 0)
                     {
                         auto& pID = pxzFaceGrid.At({ x,y - 1,z });
-                        blockResources.ResolveCoplanarFaces(mID, pID, GetBlockGlobalID(blockResources, mID), GetBlockGlobalID(blockResources, pID));
+                        blockResources.ResolveCoplanarFaces(mID, pID);
                     }
 
                     pxzFaceGrid.At({ x, y, z }) = id; // positive face
@@ -151,7 +151,7 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor, BlockResources& blockResources)
                 if (thisType != 0)
                 {
                     auto otherType = neighbor->data.At({ otherX,y,z });
-                    blockResources.ResolveCoplanarFaces(thisType, otherType, GetBlockGlobalID(blockResources, thisType), neighbor->GetBlockGlobalID(blockResources, otherType));
+                    blockResources.ResolveCoplanarFaces(thisType, otherType);
                 }
             }
         return;
@@ -180,7 +180,7 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor, BlockResources& blockResources)
                 if (thisType != 0)
                 {
                     auto otherType = neighbor->data.At({ x,otherY,z });
-                    blockResources.ResolveCoplanarFaces(thisType, otherType, GetBlockGlobalID(blockResources, thisType), neighbor->GetBlockGlobalID(blockResources, otherType));
+                    blockResources.ResolveCoplanarFaces(thisType, otherType);
                 }
             }
         return;
@@ -209,7 +209,7 @@ void Chunk::CheckNeighborFaces(Chunk* neighbor, BlockResources& blockResources)
                 if (thisType != 0)
                 {
                     auto otherType = neighbor->data.At({ x,y,otherZ });
-                    blockResources.ResolveCoplanarFaces(thisType, otherType, GetBlockGlobalID(blockResources, thisType), neighbor->GetBlockGlobalID(blockResources, otherType));
+                    blockResources.ResolveCoplanarFaces(thisType, otherType);
                 }
             }
         return;
@@ -468,11 +468,6 @@ bool Chunk::Gen(Generator* gen)
                 data.At({ x,y,z }) = gen->GenBlock(coordinate, { x,y,z });
             }
     return true;
-}
-
-blockID Chunk::GetBlockGlobalID(BlockResources& blockResources, blockID blockID)
-{
-    return blockID;
 }
 
 blockID Chunk::GetData(ivec3 coord)

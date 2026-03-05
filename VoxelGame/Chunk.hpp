@@ -47,8 +47,6 @@ public:
 	void GenChunkLevel(int level);
 	bool Gen(Generator* gen);
 
-	blockID GetBlockGlobalID(BlockResources& blockResources, blockID blockID);
-
 	blockID GetData(ivec3 coord);
 
 	bool operator ==(const Chunk& other) const

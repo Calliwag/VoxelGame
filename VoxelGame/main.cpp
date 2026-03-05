@@ -32,20 +32,6 @@ int main()
     blockResources.AddBlock(woodBlock);
     blockResources.AddBlock(brickBlock);
     blockResources.AddBlock(glassBlock);
-    //blockResources.MarkBlockTransparent(0);
-    //int map1[] = { 1,1,2,2,2,2 };
-    //blockResources.LinkBlockTextures(1, map1);
-    //int map2[] = { 1,3,4,4,4,4 };
-    //blockResources.LinkBlockTextures(2, map2);
-    //int map3[] = { 5,5,6,6,6,6 };
-    //blockResources.LinkBlockTextures(3, map3);
-    //int map4[] = { 7,7,7,7,7,7 };
-    //blockResources.LinkBlockTextures(4, map4);
-    //int map5[] = { 8,8,8,8,8,8 };
-    //blockResources.LinkBlockTextures(5, map5);
-    //int map6[] = { 9,9,9,9,9,9 };
-    //blockResources.LinkBlockTextures(6, map6);
-    //blockResources.MarkBlockTransparent(6);
 
     UIResources uiResources({ "crosshair" });
     Renderer renderer = Renderer(blockResources, uiResources);

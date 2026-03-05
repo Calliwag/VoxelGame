@@ -20,7 +20,7 @@ blockID BlockResources::AddBlock(Block* newBlock)
     return blockID;
 }
 
-void BlockResources::ResolveCoplanarFaces(blockID& a, blockID& b, blockID globalA, blockID globalB)
+void BlockResources::ResolveCoplanarFaces(blockID& a, blockID& b)
 {
     if (a == 0)
     {
@@ -30,9 +30,8 @@ void BlockResources::ResolveCoplanarFaces(blockID& a, blockID& b, blockID global
     {
         return;
     }
-
-    auto aV = !GetBlock(globalA)->IsTransparent();
-    auto bV = !GetBlock(globalB)->IsTransparent();
+    auto aV = /*!IsBlockTransparent(a);*/ !GetPaletteBlock(a)->IsTransparent();
+    auto bV = /*!IsBlockTransparent(b);*/ !GetPaletteBlock(b)->IsTransparent();
     if (aV == bV)
     {
         a = 0;
@@ -40,17 +39,22 @@ void BlockResources::ResolveCoplanarFaces(blockID& a, blockID& b, blockID global
     }
     else if (aV && !bV)
     {
-        a = 0;
+        b = 0;
     }
     else if (!aV && bV)
     {
-        b = 0;
+        a = 0;
     }
 }
 
 Block* BlockResources::GetBlock(blockID globalBlockID)
 {
     return blocks[globalBlockID];
+}
+
+bool BlockResources::HasGlobalID(blockID globalBlockID)
+{
+    return blocks.size() > globalBlockID;
 }
 
 UIResources::UIResources(std::vector<std::string> texNames)

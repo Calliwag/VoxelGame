@@ -21,7 +21,7 @@ void main()
 	gl_Position = matrix * vec4(offset + pos,1);
     texLayer = texIndex; // x = block type, y = block face
     lightValue = 0.5 * max(0.0, dot(-norm,lightDir)) + 0.5;
-    fUV = uv;
+    fUV = vec2(uv.x * 0.999,uv.y * 0.999); // Silly little hack to step textures from looking like shit
 };
 
 )";
@@ -30,7 +30,7 @@ const char* blockFragmentShader = /* fragment shader:*/ R"(
 #version 460 core
 #extension GL_ARB_texture_query_lod : enable
 
-flat in int texLayer; // x = block type, y = block face
+flat in int texLayer;
 in float lightValue;
 in vec2 fUV;
 

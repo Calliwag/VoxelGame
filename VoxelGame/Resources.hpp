@@ -21,8 +21,11 @@ public:
 	//void MarkBlockTransparent(blockID type);
 	//int GetBlockTexIndex(blockID type, int face);
 	//bool IsBlockTransparent(blockID type);
-	void ResolveCoplanarFaces(blockID& a, blockID& b, blockID globalA, blockID globalB);
+	void ResolveCoplanarFaces(blockID& a, blockID& b);
 	Block* GetBlock(blockID globalBlockID);
+	bool HasGlobalID(blockID globalBlockID);
+
+	Block* GetPaletteBlock(blockID paletteID) { return GetBlock(paletteID); };
 };
 
 class UIResources

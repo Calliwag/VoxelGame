@@ -27,5 +27,5 @@ public:
 	void Render();
 	void GenChunks(int count);
 	void UpdateToGenerateList();
-	void SetBlock(ivec3 coord, blockType value);
+	void SetBlock(ivec3 coord, blockID value);
 };

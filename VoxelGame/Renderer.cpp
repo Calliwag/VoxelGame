@@ -112,7 +112,8 @@ void Renderer::DrawUI(World& world)
     // Draw active block
     uiResources.SetQuadPNAligned({ width,0 }, { height / 6, height / 6 });
     uiResources.BindQuad(uiShader, uiPosLoc, uiUVLoc);
-    auto layer = blockResources.GetBlockTexIndex(world.player->inv.currentBlock, 1);
+    //auto layer = blockResources.GetBlockTexIndex(world.player->inv.currentBlock, 1);
+    auto layer = blockResources.GetBlock(world.player->inv.currentBlock)->GetTextureId(1);
     if (layer != 0)
     {
         uiResources.SetLayerTexture(blockResources.texArray, layer);

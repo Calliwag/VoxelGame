@@ -1,24 +1,28 @@
 #pragma once
 #include "SimView/SimView.hpp"
 #include "Definitions.hpp"
+#include "Block.hpp"
 
 using namespace SimView;
 
 class BlockResources
 {
-	std::map<blockType, std::map<int, int>> blockTexture = {};
-	std::map<blockType, bool> blockTransparent = {};
+	//std::map<blockID, std::map<int, int>> blockTexture = {};
+	//std::map<blockID, bool> blockTransparent = {};
+	std::vector<Block*> blocks = {};
 
 public:
 	TextureArray texArray;
 
 	BlockResources() {}
 	BlockResources(std::vector<std::string> textures);
-	void LinkBlockTextures(blockType type, int* texIds);
-	void MarkBlockTransparent(blockType type);
-	int GetBlockTexIndex(blockType type, int face);
-	bool IsBlockTransparent(blockType type);
-	void ResolveFaces(blockType& a, blockType& b);
+	blockID AddBlock(Block* newBlock);
+	//void LinkBlockTextures(blockID type, int* texIds);
+	//void MarkBlockTransparent(blockID type);
+	//int GetBlockTexIndex(blockID type, int face);
+	//bool IsBlockTransparent(blockID type);
+	void ResolveCoplanarFaces(blockID& a, blockID& b, blockID globalA, blockID globalB);
+	Block* GetBlock(blockID globalBlockID);
 };
 
 class UIResources

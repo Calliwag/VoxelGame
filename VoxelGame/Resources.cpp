@@ -13,30 +13,14 @@ BlockResources::BlockResources(std::vector<std::string> textures)
     texArray.GenMipmaps(0);
 }
 
-void BlockResources::LinkBlockTextures(blockType type, int* texIds)
+blockID BlockResources::AddBlock(Block* newBlock)
 {
-    for (int i = 0; i < 6; i++)
-    {
-        blockTexture[type][i] = texIds[i];
-    }
+    blockID blockID = blocks.size();
+    blocks.push_back(newBlock);
+    return blockID;
 }
 
-void BlockResources::MarkBlockTransparent(blockType type)
-{
-    blockTransparent[type] = true;
-}
-
-int BlockResources::GetBlockTexIndex(blockType type, int face)
-{
-    return blockTexture[type][face];
-}
-
-bool BlockResources::IsBlockTransparent(blockType type)
-{
-    return blockTransparent[type];
-}
-
-void BlockResources::ResolveFaces(blockType& a, blockType& b)
+void BlockResources::ResolveCoplanarFaces(blockID& a, blockID& b, blockID globalA, blockID globalB)
 {
     if (a == 0)
     {
@@ -46,8 +30,9 @@ void BlockResources::ResolveFaces(blockType& a, blockType& b)
     {
         return;
     }
-    auto aV = !IsBlockTransparent(a);
-    auto bV = !IsBlockTransparent(b);
+
+    auto aV = !GetBlock(globalA)->IsTransparent();
+    auto bV = !GetBlock(globalB)->IsTransparent();
     if (aV == bV)
     {
         a = 0;
@@ -55,12 +40,17 @@ void BlockResources::ResolveFaces(blockType& a, blockType& b)
     }
     else if (aV && !bV)
     {
-        b = 0;
+        a = 0;
     }
     else if (!aV && bV)
     {
-        a = 0;
+        b = 0;
     }
+}
+
+Block* BlockResources::GetBlock(blockID globalBlockID)
+{
+    return blocks[globalBlockID];
 }
 
 UIResources::UIResources(std::vector<std::string> texNames)

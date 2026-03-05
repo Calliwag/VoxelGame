@@ -14,16 +14,16 @@ class Chunk
 {
 public:
 	// General
-	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> data;
+	Grid<blockID, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> data;
 	ivec3 coordinate;
 
 	// Face grids
-	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxyFaceGrid;
-	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxyFaceGrid;
-	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nyzFaceGrid;
-	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pyzFaceGrid;
-	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxzFaceGrid;
-	Grid<blockType, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxzFaceGrid;
+	Grid<blockID, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxyFaceGrid;
+	Grid<blockID, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxyFaceGrid;
+	Grid<blockID, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nyzFaceGrid;
+	Grid<blockID, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pyzFaceGrid;
+	Grid<blockID, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> nxzFaceGrid;
+	Grid<blockID, CHUNK_SPAN, CHUNK_SPAN, CHUNK_SPAN> pxzFaceGrid;
 	void GenFaceGrids(BlockResources& blockResources);
 	void GenFaceGridsSide(ivec3 neighborCoord);
     void CheckNeighborFaces(Chunk* neighbor, BlockResources& blockResources);
@@ -47,7 +47,9 @@ public:
 	void GenChunkLevel(int level);
 	bool Gen(Generator* gen);
 
-	blockType GetData(ivec3 coord);
+	blockID GetBlockGlobalID(BlockResources& blockResources, blockID blockID);
+
+	blockID GetData(ivec3 coord);
 
 	bool operator ==(const Chunk& other) const
 	{

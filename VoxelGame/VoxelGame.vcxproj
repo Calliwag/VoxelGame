@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Creature.hpp" />
+    <ClInclude Include="Block.hpp" />
     <ClInclude Include="uiShader.hpp" />
     <ClInclude Include="AABB.hpp" />
     <ClInclude Include="blockShader.hpp" />

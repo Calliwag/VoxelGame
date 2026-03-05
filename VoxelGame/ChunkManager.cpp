@@ -200,7 +200,7 @@ ivec3 ChunkManager::GetChunkCoord(vec3 pos)
 	return glm::floor(pos / (float)CHUNK_SPAN);
 }
 
-void ChunkManager::SetBlock(ivec3 coord, blockType value, BlockResources& blockResources)
+void ChunkManager::SetBlock(ivec3 coord, blockID value, BlockResources& blockResources)
 {
 	auto chunkCoord = GetChunkCoord(coord);
 	if (!chunks.contains(chunkCoord))
@@ -221,7 +221,8 @@ bool ChunkManager::IsBlockSolid(ivec3 worldCoordinate)
 	if (!chunks.contains(chunkCoord))
 		return false;
 	ivec3 blockCoord = GetBlockCoord(worldCoordinate);
-	return chunks.at(chunkCoord).data.At(blockCoord) != 0;
+	blockID blockID = chunks.at(chunkCoord).data.At(blockCoord);
+	return blockID != 0;
 }
 
 AABB ChunkManager::GetBlockAABB(ivec3 worldCoordinate)

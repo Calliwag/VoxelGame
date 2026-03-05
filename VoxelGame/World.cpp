@@ -103,7 +103,7 @@ void World::UpdateToGenerateList()
     cm.UnloadDistant(player->position, radius, vRadius);
 }
 
-void World::SetBlock(ivec3 coord, blockType value)
+void World::SetBlock(ivec3 coord, blockID value)
 {
     cm.SetBlock(coord, value, r.blockResources);
 }

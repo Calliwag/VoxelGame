@@ -45,7 +45,7 @@ public:
 	RayIter GetRayIter(vec3 start, vec3 dir);
 	ivec3 GetBlockCoord(vec3 pos);
 	ivec3 GetChunkCoord(vec3 pos);
-	void SetBlock(ivec3 coord, blockType value, BlockResources& blockResources);
+	void SetBlock(ivec3 coord, blockID value, BlockResources& blockResources);
 
 	bool IsChunkLoaded(ivec3 chunkCoord);
 	bool IsBlockSolid(ivec3 worldCoordinate);

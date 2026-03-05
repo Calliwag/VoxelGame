@@ -1,4 +1,5 @@
 #include "PlayerCreature.hpp"
+#include <iostream>
 
 PlayerCreature::PlayerCreature()
 {
@@ -18,6 +19,7 @@ PlayerCreature::PlayerCreature()
 void PlayerCreature::Act(World& world)
 {
     constexpr float mouseSensitivity = 0.01;
+    std::cout << position.z << '\n';
 
     auto xyDir = GetXYDir();
     if (mouseLock)
